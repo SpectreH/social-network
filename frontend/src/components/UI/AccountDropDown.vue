@@ -1,0 +1,84 @@
+<template>
+  <a
+    href="#"
+    class="d-flex align-items-center dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="true"
+    aria-expanded="false"
+    :id="accountAttr.id"
+  >
+    <img :src="accountAttr.avatar" class="img-fluid rounded-circle me-3" alt="user" />
+    <div class="caption">
+      <h6 class="mb-0 line-height">{{ accountAttr.name }}</h6>
+    </div>
+  </a>
+  <div
+    class="sub-drop dropdown-menu caption-menu"
+    :aria-labelledby="accountAttr.id"
+  >
+    <div class="card shadow-none m-0">
+      <div class="card-header bg-primary">
+        <div class="header-title">
+          <h5 class="mb-0 text-white">Hello, {{ accountAttr.name }}!</h5>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <router-link :to="`/profile/` + accountAttr.id">
+          <a  class="iq-sub-card iq-bg-primary-hover">
+            <div class="d-flex align-items-center">
+              <div class="rounded card-icon bg-soft-primary">
+                <i class="ri-file-user-line"></i>
+              </div>
+              <div class="ms-3">
+                <h6 class="mb-0">My Profile</h6>
+                <p class="mb-0 font-size-12">
+                  View personal profile details.
+                </p>
+              </div>
+            </div>
+          </a>
+        </router-link>
+        
+        <router-link to="/profile-settings">
+          <a class="iq-sub-card iq-bg-primary-hover">
+            <div class="d-flex align-items-center">
+              <div class="rounded card-icon bg-soft-warning">
+                <i class="ri-profile-line"></i>
+              </div>
+              <div class="ms-3">
+                <h6 class="mb-0">Edit Profile</h6>
+                <p class="mb-0 font-size-12">
+                  Modify your personal details.
+                </p>
+              </div>
+            </div>
+          </a>
+        </router-link>
+
+        <div class="d-inline-block w-100 text-center p-3">
+          <router-link to="/logout">
+            <a class="btn btn-primary iq-sign-btn" role="button">
+              Sign out<i class="ri-login-box-line ms-2"></i>
+            </a>
+          </router-link>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "AccountDropDown",
+  props: {
+    accountAttr: {type: Object, default: () => { 
+      return {
+        id: "",
+        avatar: "",
+        name: "",
+      } 
+    }}
+  }
+}
+</script>
