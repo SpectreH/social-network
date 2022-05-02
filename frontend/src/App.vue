@@ -1,25 +1,36 @@
 <template>
   <div id="app">
-    <the-application-bar></the-application-bar>
-    <router-view class="content" />
+    <side-bar></side-bar>
+    <top-bar></top-bar>
+    <div id="content-page" class="content-page">
+      <div class="container">
+        <div class="row">
+          <router-view></router-view>
+        </div>
+      </div>
+    </div>
   </div>
-</template> 
+</template>
 
 <script>
-  import TheApplicationBar from "./components/UI/TheApplicationBar.vue";
-  export default {
-    components: { TheApplicationBar }
-  };
+import TopBar from "./components/UI/TopBar.vue"
+import SideBar from "./components/UI/SideBar.vue"
+export default {
+  name: 'App',
+  components: {
+    TopBar,
+    SideBar
+  },
+  data: () => ({
+    
+  }),
+  mounted() {
+    const pageMenu = document.querySelector(".wrapper-menu");
+
+    pageMenu.addEventListener('click', () => {
+      pageMenu.classList.toggle("open");
+      document.body.classList.toggle("sidebar-main");
+    })
+  }
+}
 </script>
-
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-
-  .content {
-    padding-top: 5.5vh;
-    padding-left: 10%;
-  }
-</style>
