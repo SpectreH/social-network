@@ -1,13 +1,14 @@
 <template>
   <a
     href="#"
-    class="dropdown-toggle"
+    class="dropdown-toggle d-grid"
     data-bs-toggle="dropdown"
     aria-haspopup="true"
     aria-expanded="false"
     :id="menuAttr.id"
   >
     <i :class="menuAttr.icon"></i>
+    <div v-if="menuAttr.elements.length !== 0" class="number-circle danger" style="font-size: 11px">{{ menuAttr.elements.length }}</div>
   </a>
 
   <div :class="menuAttr.id === 'group-drop' ? 'sub-drop-large' : _ " class="sub-drop dropdown-menu" :aria-labelledby="menuAttr.id">
@@ -109,3 +110,26 @@ export default {
   }
 }
 </script>
+
+<style>
+.number-circle {
+  font: 32px Arial, sans-serif;
+  position: absolute;
+
+  width: 2em;
+  height: 2em;
+  box-sizing: initial;
+  
+  background-color: red;
+  border: 0.1em solid #666;
+  color: white;
+  text-align: center;
+  border-radius: 50%;    
+
+  line-height: 2em;
+  box-sizing: content-box;
+  
+  margin-top: 7px;
+  margin-left: 13px;
+}
+</style>

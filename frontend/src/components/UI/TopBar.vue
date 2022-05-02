@@ -30,7 +30,7 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav ms-auto navbar-list">
+          <ul class="navbar-nav ms-auto navbar-list gap-1">
             <li>
               <router-link to="/">
                   <a to="/" class="d-flex align-items-center">
