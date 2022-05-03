@@ -66,7 +66,6 @@ export default {
     AccountDropDown
   },
   name: "TopBar",
-  props: {},
   data() {
     return {
       notificaitonDD: {

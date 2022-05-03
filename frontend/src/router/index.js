@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import NewsFeed from '../views/NewsFeedView.vue'
 import SignIn from '../views/SignInView.vue'
 import SignUp from '../views/SignUpView.vue'
+import PostView from '../views/PostView.vue'
 
 const routes = [
   {
@@ -18,7 +19,13 @@ const routes = [
     path: '/sign-in',
     name: 'sign-in',
     component: SignIn
-  },  
+  },
+  {
+    path: '/post/:postId',
+    name: 'post',
+    component: PostView,
+    props: true,
+  },
 ]
 
 const router = createRouter({

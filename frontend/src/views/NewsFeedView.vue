@@ -1,18 +1,18 @@
 <template>
-  <HelloWorld />
+  <NewsFeed />
 </template>
 
 <script>
 import { defineComponent } from 'vue';
 
 // Components
-import HelloWorld from '../components/NewsFeed.vue';
+import NewsFeed from '../components/NewsFeed.vue';
 
 export default defineComponent({
   name: 'HomeView',
 
   components: {
-    HelloWorld,
+    NewsFeed,
   },
 });
 </script>

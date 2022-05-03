@@ -32,6 +32,11 @@ export default {
     return {
       routerList: [
         {
+          header: "News Feed",
+          icon: "las la-newspaper",
+          to: "/"
+        },
+        {
           header: "Profile",
           icon: "las la-user",
           to: "/profile"
