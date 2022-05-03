@@ -23,36 +23,46 @@
         </div>
       </div>
       <div class="card-body p-0">
-        <router-link :to="`/profile/` + accountAttr.id">
-          <a  class="iq-sub-card iq-bg-primary-hover">
-            <div class="d-flex align-items-center">
-              <div class="rounded card-icon bg-soft-primary">
-                <i class="ri-file-user-line"></i>
-              </div>
-              <div class="ms-3">
-                <h6 class="mb-0">My Profile</h6>
-                <p class="mb-0 font-size-12">
-                  View personal profile details.
-                </p>
-              </div>
+        <router-link class="iq-sub-card iq-bg-primary-hover" :to="`/user/` + accountAttr.id">
+          <div class="d-flex align-items-center">
+            <div class="rounded card-icon bg-soft-primary">
+              <i class="ri-file-user-line"></i>
             </div>
-          </a>
+            <div class="ms-3">
+              <h6 class="mb-0">My Profile</h6>
+              <p class="mb-0 font-size-12">
+                View personal profile details.
+              </p>
+            </div>
+          </div>
         </router-link>
         
-        <router-link to="/profile-settings">
-          <a class="iq-sub-card iq-bg-primary-hover">
-            <div class="d-flex align-items-center">
-              <div class="rounded card-icon bg-soft-warning">
-                <i class="ri-profile-line"></i>
-              </div>
-              <div class="ms-3">
-                <h6 class="mb-0">Edit Profile</h6>
-                <p class="mb-0 font-size-12">
-                  Modify your personal details.
-                </p>
-              </div>
+        <router-link class="iq-sub-card iq-bg-primary-hover" to="/profile-settings">
+          <div class="d-flex align-items-center">
+            <div class="rounded card-icon bg-soft-warning">
+              <i class="ri-profile-line"></i>
             </div>
-          </a>
+            <div class="ms-3">
+              <h6 class="mb-0">Edit Profile</h6>
+              <p class="mb-0 font-size-12">
+                Modify your personal details.
+              </p>
+            </div>
+          </div>
+        </router-link>
+
+        <router-link class="link-anchor iq-sub-card iq-bg-primary-hover" to="/privacy-settings">
+          <div class="d-flex align-items-center">
+            <div class="rounded card-icon bg-soft-danger">
+              <i class="ri-lock-line"></i>
+            </div>
+            <div class="ms-3">
+              <h6 class="mb-0">Privacy Settings</h6>
+              <p class="mb-0 font-size-12">
+                Control your privacy parameters.
+              </p>
+            </div>
+          </div>
         </router-link>
 
         <div class="d-inline-block w-100 text-center p-3">

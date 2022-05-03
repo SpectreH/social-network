@@ -39,7 +39,7 @@ export default {
         {
           header: "Profile",
           icon: "las la-user",
-          to: "/profile"
+          to: "/user/1"
         },
         {
           header: "Chat",
