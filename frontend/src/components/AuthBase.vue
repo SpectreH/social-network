@@ -3,7 +3,7 @@
   <top-bar></top-bar>
   <div id="content-page" class="content-page">
     <div class="container">
-      <div class="row">
+      <div class="row justify-content-center">
         <router-view></router-view>
       </div>
     </div>
