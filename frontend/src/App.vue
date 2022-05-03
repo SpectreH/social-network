@@ -1,36 +1,18 @@
 <template>
   <div id="app">
-    <side-bar></side-bar>
-    <top-bar></top-bar>
-    <div id="content-page" class="content-page">
-      <div class="container">
-        <div class="row">
-          <router-view></router-view>
-        </div>
-      </div>
-    </div>
+    <auth-base v-if="false"></auth-base>
+    <un-auth-base v-else></un-auth-base>
   </div>
 </template>
 
 <script>
-import TopBar from "./components/UI/TopBar.vue"
-import SideBar from "./components/UI/SideBar.vue"
+import AuthBase from "./components/AuthBase.vue"
+import UnAuthBase from "./components/UnAuthBase.vue"
 export default {
   name: 'App',
   components: {
-    TopBar,
-    SideBar
-  },
-  data: () => ({
-    
-  }),
-  mounted() {
-    const pageMenu = document.querySelector(".wrapper-menu");
-
-    pageMenu.addEventListener('click', () => {
-      pageMenu.classList.toggle("open");
-      document.body.classList.toggle("sidebar-main");
-    })
+    AuthBase,
+    UnAuthBase 
   }
 }
 </script>
