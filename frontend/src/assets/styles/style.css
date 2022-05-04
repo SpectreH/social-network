@@ -18864,12 +18864,12 @@ div#profile-profile a {
   color: #777d74
 }
 
-.friend-list-items.nav-pills .nav-link.active {
+.user-list-items.nav-pills .nav-link.active {
   background-color: transparent;
   color: #000
 }
 
-.friend-list-items.nav-pills .show>.nav-link {
+.user-list-items.nav-pills .show>.nav-link {
   background-color: transparent;
   color: #000
 }
@@ -19114,7 +19114,7 @@ ul.request-list>li:last-child {
 }
 
 @media (max-width:767.98px) {
-  ul.friend-list-items {
+  ul.user-list-items {
     display: block !important;
     text-align: center
   }
@@ -29846,7 +29846,7 @@ body.swal2-toast-shown .swal2-container.swal2-bottom-right {
   color: #fff
 }
 
-.dark .friend-list-items.nav-pills .nav-link.active {
+.dark .user-list-items.nav-pills .nav-link.active {
   color: #dee2e6
 }
 

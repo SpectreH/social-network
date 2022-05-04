@@ -14,9 +14,6 @@ export default defineComponent({
   },
   components: {
     UserProfile
-  },
-  mounted() {
-    console.log(this.postId)
   }
 });
 </script>
