@@ -8,6 +8,8 @@ import EditProfielView from '../views/EditProfileView.vue'
 import EditPrivacyView from '../views/EditPrivacyView.vue'
 import FollowRequestView from '../views/FollowRequestView.vue'
 import ChatView from '../views/ChatView.vue'
+import GroupsFeedView from '../views/GroupsFeedView.vue'
+import GroupView from '../views/GroupView.vue'
 
 const routes = [
   {
@@ -61,6 +63,17 @@ const routes = [
     path: '/chat/:chatId',
     name: 'exactChat',
     component: ChatView,
+    props: true,
+  },
+  {
+    path: '/group/',
+    name: 'groupsFeed',
+    component: GroupsFeedView,
+  },
+  {
+    path: '/group/:groupId',
+    name: 'exactGroup',
+    component: GroupView,
     props: true,
   },
 ]

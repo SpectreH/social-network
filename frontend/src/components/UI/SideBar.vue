@@ -47,7 +47,7 @@ export default {
         {
           header: "Groups",
           icon: "las la-users",
-          to: "/groups"
+          to: "/group"
         },
         {
           header: "Follow Request",
