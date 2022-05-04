@@ -6,7 +6,6 @@
       tabindex="-1"
       style="overflow: hidden; outline: none"
     >
-    
       <div class="scroll-content">
         <nav class="iq-sidebar-menu">
           <ul id="iq-sidebar-toggle" class="iq-menu">
@@ -19,7 +18,6 @@
         </nav>
         <div class="p-5"></div>
       </div>
-
     </div>
   </div>
 </template>
@@ -52,9 +50,9 @@ export default {
           to: "/groups"
         },
         {
-          header: "Friend Request",
+          header: "Follow Request",
           icon: "las la-plus",
-          to: "/friend-request"
+          to: "/follow-request"
         }                                         
       ]
     }

@@ -5,7 +5,8 @@ import SignUp from '../views/SignUpView.vue'
 import PostView from '../views/PostView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import EditProfielView from '../views/EditProfileView.vue'
-import EditPrivacySettings from '../views/EditPrivacyView.vue'
+import EditPrivacyView from '../views/EditPrivacyView.vue'
+import FollowRequestView from '../views/FollowRequestView.vue'
 
 const routes = [
   {
@@ -44,7 +45,13 @@ const routes = [
   {
     path: '/privacy-settings',
     name: 'privacySettings',
-    component: EditPrivacySettings,
+    component: EditPrivacyView,
+    props: true,
+  },
+  {
+    path: '/follow-request',
+    name: 'followRequest',
+    component: FollowRequestView,
     props: true,
   },
 ]

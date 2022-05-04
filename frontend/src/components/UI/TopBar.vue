@@ -83,7 +83,7 @@ export default {
         ],
       },
       requestDD: {
-        id: "group-drop",
+        id: "follow-drop",
         icon: "ri-group-line",
         title: "Requests",
         elements: [
