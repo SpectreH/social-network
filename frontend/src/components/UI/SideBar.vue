@@ -52,11 +52,6 @@ export default {
           to: "/groups"
         },
         {
-          header: "Friend List",
-          icon: "las la-user-friends",
-          to: "/friend-list"
-        },
-        {
           header: "Friend Request",
           icon: "las la-plus",
           to: "/friend-request"
