@@ -50,11 +50,12 @@ export default {
         status: "online",
         messages: [
           {
+            id: "1",
             from: "1",
             to: "2",
             time: "12:30",
             avatar: "https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/05.jpg",
-            text: "Test",
+            text: "Hey John, I am looking for the best admin template. Could you please help me to find it out? 🤔",
           }
         ],
       }

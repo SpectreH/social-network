@@ -21,17 +21,23 @@
     </div>
 
     <div class="chat-content scroller">
-
+      <div v-for="message of chat.messages" :key="message.id" :class="message.to !== '1' ? 'chat-left' : _" class="chat d-flex" >
+        <ChatMessage :message="message" />
+      </div>
     </div>
 
     <div class="chat-footer p-3 bg-white">
       <form class="d-flex align-items-center" action="#">
         <div class="chat-attagement d-flex">
-          <a href="#"><i class="far fa-smile pe-3" aria-hidden="true"></i></a>
-          <a href="#"><i class="fa fa-paperclip pe-3" aria-hidden="true"></i></a>
+          <span class="" id="followerButton" data-bs-toggle="dropdown" aria-expanded="false" role="button">
+            <i class="las la-smile pe-3" aria-hidden="true"></i>
+          </span>
+          <div class="dropdown-menu dropdown-menu-start" aria-labelledby="followerButton" style="">
+            <Picker :data="emojiIndex" :showSearch="false" :showCategories="false" :showPreview="false" :showSkinTones="false" @select="showEmoji" />
+          </div>
         </div>
-        <input type="text" class="form-control me-3" placeholder="Type your message">
-        <button type="submit" class="btn btn-primary d-flex align-items-center p-2"><i class="far fa-paper-plane" aria-hidden="true"></i><span class="d-none d-lg-block ms-1">Send</span></button>
+        <input type="text" v-model="inputMessage"  class="form-control me-3" placeholder="Type your message">
+        <button type="submit" class="btn btn-primary d-flex align-items-center p-2"><i class="lab la-telegram-plane" aria-hidden="true"></i><span class="d-none d-lg-block ms-1">Send</span></button>
       </form>
     </div>
     
@@ -39,13 +45,33 @@
 </template>
 
 <script>
+import ChatMessage from "./ChatMessage.vue";
+import data from "emoji-mart-vue-fast/data/all.json";
+import { Picker, EmojiIndex } from "emoji-mart-vue-fast/src";
+let emojiIndex = new EmojiIndex(data);
+
 export default {
   name: "ChatBox",
   props: {
     chat: {type: Object, default: () => {
       return {}
     }}
-  }
+  },
+  components: {
+    Picker,
+    ChatMessage
+  },
+  data() {
+    return {
+      inputMessage: "",
+      emojiIndex: emojiIndex,
+    };
+  },
+  methods: {
+    showEmoji(emoji) {
+      this.inputMessage += emoji.native;
+    }
+  }  
 }
 </script>
 
