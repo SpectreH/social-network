@@ -7,6 +7,7 @@ import ProfileView from '../views/ProfileView.vue'
 import EditProfielView from '../views/EditProfileView.vue'
 import EditPrivacyView from '../views/EditPrivacyView.vue'
 import FollowRequestView from '../views/FollowRequestView.vue'
+import ChatView from '../views/ChatView.vue'
 
 const routes = [
   {
@@ -40,18 +41,26 @@ const routes = [
     path: '/profile-settings',
     name: 'profileSettings',
     component: EditProfielView,
-    props: true,
   },
   {
     path: '/privacy-settings',
     name: 'privacySettings',
     component: EditPrivacyView,
-    props: true,
   },
   {
     path: '/follow-request',
     name: 'followRequest',
     component: FollowRequestView,
+  },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: ChatView,
+  },  
+  {
+    path: '/chat/:chatId',
+    name: 'exactChat',
+    component: ChatView,
     props: true,
   },
 ]

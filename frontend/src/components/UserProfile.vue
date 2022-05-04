@@ -32,7 +32,7 @@
                   </div>
                   <div style="z-index: 100;">
                     <ul class="header-nav list-inline d-flex flex-wrap justify-end p-0 m-0">
-                      <li><router-link to="/test"><i class="ri-settings-4-line"></i></router-link></li>
+                      <li><router-link to="/profile-settings"><i class="ri-settings-4-line"></i></router-link></li>
                     </ul>
                   </div>
               </div>
