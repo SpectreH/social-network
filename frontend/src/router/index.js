@@ -4,6 +4,7 @@ import SignIn from '../views/SignInView.vue'
 import SignUp from '../views/SignUpView.vue'
 import PostView from '../views/PostView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import EditProfielView from '../views/EditProfileView.vue'
 
 const routes = [
   {
@@ -31,6 +32,12 @@ const routes = [
     path: '/post/:postId',
     name: 'post',
     component: PostView,
+    props: true,
+  },
+  {
+    path: '/profile-settings',
+    name: 'profileSettings',
+    component: EditProfielView,
     props: true,
   },
 ]
