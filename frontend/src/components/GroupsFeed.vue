@@ -1,10 +1,13 @@
 <template>
-  <div class="iq-search-bar device-search d-flex justify-content-center mb-3">
+  <div class="iq-search-bar device-search d-flex justify-content-center mb-3 gap-5">
     <form action="#" class="searchbox">
       <a class="search-link h-100 d-flex align-items-center" href="#"><i class="ri-search-line"></i></a>
       <input v-model="search" type="text" class="text search-input" placeholder="Search group here...">
     </form>
+    <button class="btn btn-primary d-block"  data-bs-toggle="modal" data-bs-target="#newGroupModal">Create Group</button>
   </div>
+  <NewGroupModal :modalId="'newGroupModal'" />
+
   <div class="d-grid gap-3 d-grid-template-1fr-19">
     <div v-for="group of filteredGroups" :key="group.id" class="card">
       <GroupOverview :group="group" />
@@ -15,12 +18,14 @@
 
 <script>
 import GroupOverview from "./UI/GroupOverview.vue"
+import NewGroupModal from "./UI/NewGroupModal.vue"
 export default {
   name: 'NewsFeed',
   components: {
-    GroupOverview
+    GroupOverview,
+    NewGroupModal
   },
-  data: () => ({
+  data: () => ({    
     search: "",
     groups: [
       {

@@ -32,7 +32,6 @@
                     :type="input.type"
                     class="form-control"
                     :id="input.id"
-                    :minlength="input.minLenght ? input.minLenght : _"
                     :placeholder="input.label"
                   />
                 </div>
@@ -77,7 +76,6 @@ export default {
         label: "Nickname",
         id: "nickname",
         type: "text",
-        minLenght: 4,
         colType: "col-sm-6",
       },
       {
