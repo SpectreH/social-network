@@ -1,0 +1,4 @@
+CREATE TABLE chats (
+	id INTEGER PRIMARY KEY,
+  group_chat BOOLEAN NOT NULL
+);
