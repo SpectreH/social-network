@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"social-network/internal/database/sqlite"
 	"social-network/internal/handlers"
+	middleware "social-network/internal/middleware"
 	"social-network/internal/routes"
 )
 
@@ -18,8 +19,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handlersRepo := handlers.SetNewRepo(database)
+	mwRepo := middleware.CreateNewRepo(database)
+	handlersRepo := handlers.CreateNewRepo(database)
+
 	handlers.SetNewHandlers(handlersRepo)
+	middleware.SetNewMiddleware(mwRepo)
 
 	srv := &http.Server{
 		Addr:    ":4000",

@@ -2,19 +2,15 @@
   <div class="sign-in-from">
     <h1 class="mb-0">Sign In</h1>
     <p>Enter your email address and password to access social network.</p>
-    <form class="row mt-4">
-      <div v-for="input in inputs" :key="input.id" class="col-12 form-group" :class="input.required ? 'required' : _">
-        <label class="form-label" :for="input.id"
-          >{{ input.label }}</label
-        >
+    <form class="row mt-4" @submit.prevent="submit">
+      <div class="col-12 form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control mb-0" placeholder="Email" v-model="form.email" autocomplete/>
+      </div>
 
-        <input
-          :type="input.type" 
-          class="form-control mb-0"
-          :id="input.id"
-          :placeholder="input.label"
-          :required="input.required"
-        />
+      <div class="col-12 form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control mb-0" placeholder="Password" v-model="form.password" autocomplete/>
       </div>
 
       <div class="d-inline-block w-100">
@@ -34,25 +30,23 @@
 </template>
 
 <script>
-
+import { mapActions } from "vuex"
 export default {
   name: 'SignIn',
   data: () => ({
-    inputs: [
-      {
-        label: "Email",
-        id: "email",
-        type: "email",
-        required: true
-      },
-      {
-        label: "Password",
-        id: "password",
-        type: "password",
-        required: true
-      }
-    ]
-
+    form: {
+      email: "",
+      password: ""
+    }
   }),
+  methods: {
+    ...mapActions({
+      signIn: 'auth/signIn'
+    }),
+
+    submit() {
+      this.signIn(this.form)
+    }
+  }
 }
 </script>

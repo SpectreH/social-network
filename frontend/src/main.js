@@ -9,6 +9,9 @@ import "./assets/styles/style.css"
 import 'remixicon/fonts/remixicon.css'
 import 'line-awesome/dist/line-awesome/css/line-awesome.css'
 import "emoji-mart-vue-fast/css/emoji-mart.css";
+import axios from 'axios'
+
+axios.defaults.baseURL = 'http://127.0.0.1:4000/'
 
 loadFonts()
 

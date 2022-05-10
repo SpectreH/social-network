@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <auth-base v-if="true"></auth-base>
+    <auth-base v-if="false"></auth-base>
     <un-auth-base v-else></un-auth-base>
   </div>
 </template>
