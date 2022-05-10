@@ -11,6 +11,7 @@ import (
 func SetRoutes() http.Handler {
 	mux := http.NewServeMux()
 
+	mux.Handle("/api/signup", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.SignUp)))
 	mux.Handle("/api/signin", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.SignIn)))
 	mux.Handle("/api/authme", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.AuthMe)))
 

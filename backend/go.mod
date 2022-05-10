@@ -9,4 +9,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.10 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
+	golang.org/x/crypto v0.0.0-20220507011949-2cf3adece122 // indirect
 )
