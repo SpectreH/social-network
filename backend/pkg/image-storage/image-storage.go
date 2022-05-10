@@ -62,7 +62,7 @@ func (s *ImageStorage) InitImage(savePath string) (Image, error) {
 func (i *Image) CheckImgExtensionPermitted() bool {
 	imageData := strings.Split(i.Name, ".")
 	for _, allowedExt := range permittedImgExtension {
-		if imageData[len(imageData)-1] == allowedExt {
+		if strings.ToLower(imageData[len(imageData)-1]) == allowedExt {
 			return true
 		}
 	}

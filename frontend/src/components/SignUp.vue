@@ -3,34 +3,40 @@
     <h1 class="mb-0">Sign Up</h1>
     <p>Fill your personal information to access social network.</p>
     <form class="row mt-4" @submit.prevent="submit">
-      <div class="col-6 form-group">
+      <div class="col-6 form-group required">
         <label for="firstName" class="form-label">First Name</label>
-        <input v-model="form.firstName" id="firstName" placeholder="First Name" type="text" class="form-control mb-0 required" required/>
+        <input v-model="form.firstName" id="firstName" placeholder="First Name" type="text" class="form-control mb-0" required/>
+        <div class="invalid-feedback" id="firstName-feedback"></div>
       </div>
 
       <div class="col-6 form-group required">
         <label for="lastName" class="form-label">Last Name</label>
         <input v-model="form.lastName" id="lastName" placeholder="Last Name" type="text" class="form-control mb-0" required/>
+        <div class="invalid-feedback" id="lastName-feedback"></div>
       </div>
 
       <div class="col-6 form-group required">
         <label for="email" class="form-label">Email</label>
         <input v-model="form.email" id="email" placeholder="Email" type="email" class="form-control mb-0" required/>
+        <div class="invalid-feedback" id="email-feedback"></div>
       </div>
 
       <div class="col-6 form-group required">
         <label for="birthDate" class="form-label">Date of Birth</label>
         <input v-model="form.birthDate" id="birthDate" placeholder="Date of Birth" type="date" class="form-control mb-0" required/>
+        <div class="invalid-feedback" id="birthDate-feedback"></div>
       </div>
 
       <div class="col-6 form-group">
         <label for="nickname" class="form-label">Nickname</label>
-        <input v-model="form.nickname" id="nickname" placeholder="Nickname" type="text" class="form-control mb-0"/>
+        <input v-model="form.nickname" id="nickname" placeholder="Nickname" type="text" class="form-control mb-0" minlength="4"/>
+        <div class="invalid-feedback" id="nickname-feedback"></div>
       </div>
 
       <div class="col-6 form-group">
         <label for="avatar" class="form-label">Avatar</label>
         <input @change="setAvatar" id="avatar" placeholder="Avatar" type="file" accept="image/png, image/gif, image/jpeg" class="form-control mb-0"/>
+        <div class="invalid-feedback" id="avatar-feedback"></div>
       </div>
 
       <div class="col-6 form-group">
@@ -40,7 +46,8 @@
 
       <div class="col-6 form-group required">
         <label for="password" class="form-label">Password</label>
-        <input v-model="form.password" id="password" placeholder="Password" type="password" class="form-control mb-0" autocomplete="false"/>
+        <input v-model="form.password" id="password" placeholder="Password" type="password" class="form-control mb-0" autocomplete="false" required/>
+        <div class="invalid-feedback" id="password-feedback"></div>
       </div>
 
       <div class="d-inline-block w-100">
@@ -69,6 +76,11 @@ import axios from 'axios'
 export default {
   name: "SignUp",
   data: () => ({
+    validation: {
+      input: null,
+      message: null,
+      failedValue: null,
+    },
     form: {
       firstName: "",
       lastName: "",
@@ -82,20 +94,52 @@ export default {
   }),
   methods: {
     async submit() {
-      let response = await axios.post("api/signup", this.form, { 
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data"
+      try {
+        let response = await axios.post("api/signup", this.form, { 
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data"
+          } 
+        });
+        
+        const data = response.data
+        if (data.ok === false) {
+          this.validation = {
+            input: data.input,
+            message: data.message,
+            failedValue: data.value
+          }
+          return;
         } 
-      });
-      console.log(response.data);
+        
+        this.$router.push("sign-in");
+      } catch (e) {
+        console.log("Something went wrong")
+      }
     },
     setAvatar(e) {
       const files = e.target.files || e.dataTransfer.files;
       if (!files.length) { return; }
       this.form.avatar = files[0]
     }
+  },
+  watch: {
+    validation: {
+      handler(val, oldVal){
+        if (val.input) {
+          console.log(val.input)
+          document.querySelector(`#${val.input}`).classList.toggle("is-invalid");
+          document.querySelector(`#${val.input}-feedback`).textContent = val.message;
+        }
+
+        if (oldVal.input) {
+          document.querySelector(`#${oldVal.input}`).classList.toggle("is-invalid");
+        }
+      },
+      deep: true
+    }
   }
+
 };
 </script>
 
