@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"social-network/internal/config"
 	"social-network/internal/database/sqlite"
 	"social-network/internal/handlers"
 	middleware "social-network/internal/middleware"
@@ -11,7 +12,7 @@ import (
 )
 
 func main() {
-	database, _ := sql.Open("sqlite3", "./db/network.db")
+	database, _ := sql.Open("sqlite3", config.DATABASE_PATH)
 	defer database.Close()
 
 	err := sqlite.UseMigrations(database)
@@ -26,7 +27,7 @@ func main() {
 	middleware.SetNewMiddleware(mwRepo)
 
 	srv := &http.Server{
-		Addr:    ":4000",
+		Addr:    config.PORT,
 		Handler: routes.SetRoutes(),
 	}
 

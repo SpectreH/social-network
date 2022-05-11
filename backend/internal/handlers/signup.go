@@ -31,7 +31,8 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.User{}
+	user := &models.User{}
+
 	for k, v := range r.Form {
 		if len(v) == 0 {
 			continue
@@ -42,21 +43,32 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 			value = getHash([]byte(v[0]))
 		}
 
-		if err = setUserStructValue(&user, strings.Title(k), value); err != nil {
+		if err = setUserStructValue(user, strings.Title(k), value); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 	}
 
-	formValidator := forms.NewForm(r.Form)
+	user.Avatar = config.DEFAULT_AVATAR
 
+	formValidator := forms.NewForm(r.Form)
 	formValidator.Required("firstName", "lastName", "email", "password", "birthDate")
 	formValidator.IsEmail("email")
 	formValidator.MinLenght("password", 8)
 
+	id, err := m.DB.CheckEmailExistence(user.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if id != 0 {
+		formValidator.Errors.Add("email", "This email is already registered")
+	}
+
 	if r.MultipartForm.File["avatar"] != nil && formValidator.Valid() {
 		imageStorage := img.NewImageStorage(r, "avatar")
-		image, err := imageStorage.InitImage("./")
+		image, err := imageStorage.InitImage(config.AVATAR_SAVE_PATH)
 		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -82,6 +94,8 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+
+		user.Avatar = image.Name
 	}
 
 	if !formValidator.Valid() {
@@ -100,6 +114,24 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write(js)
+		return
+	}
+
+	id, err = m.DB.InsertUser(*user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = m.DB.InesertSession(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = m.DB.InsertProfileImage(id, user.Avatar)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"log"
+	"social-network/internal/config"
 	"social-network/internal/database"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -28,7 +29,7 @@ func UseMigrations(database *sql.DB) error {
 		return err
 	}
 
-	migration, err := migrate.NewWithDatabaseInstance("file://internal/database/migrations/sqlite/", "sqlite3", driver)
+	migration, err := migrate.NewWithDatabaseInstance(config.MIGRATIONS_SOURCE, "sqlite3", driver)
 	if err != nil {
 		return err
 	}
