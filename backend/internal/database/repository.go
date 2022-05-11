@@ -9,4 +9,5 @@ type DatabaseRepo interface {
 	CheckEmailExistence(email string) (int, error)
 	CheckSessionExistence(token string) (int, error)
 	UpdateSessionToken(token string, id int) error
+	GetUserHash(id int) (string, error)
 }

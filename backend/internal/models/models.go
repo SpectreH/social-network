@@ -11,3 +11,14 @@ type User struct {
 	AboutMe   string `json:"aboutMe"`
 	Password  string `json:"password"`
 }
+
+type Auth struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type FormValidationResponse struct {
+	OK      bool   `json:"ok"`
+	Input   string `json:"input"`
+	Message string `json:"message"`
+}

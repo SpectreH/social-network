@@ -78,8 +78,7 @@ export default {
   data: () => ({
     validation: {
       input: null,
-      message: null,
-      failedValue: null,
+      message: null
     },
     form: {
       firstName: "",
@@ -106,8 +105,7 @@ export default {
         if (data.ok === false) {
           this.validation = {
             input: data.input,
-            message: data.message,
-            failedValue: data.value
+            message: data.message
           }
           return;
         } 

@@ -27,7 +27,7 @@ func (m *Repository) SetupCors(next http.Handler) http.Handler {
 		(w).Header().Set("Access-Control-Allow-Credentials", "true")
 		(w).Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 		(w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, X-Requested-With, X-HTTP-Method-Override, Accept, Accept-Encoding, X-CSRF-Token, Authorization")
+		(w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token")
 		next.ServeHTTP(w, r)
 	})
 }

@@ -5,12 +5,14 @@
     <form class="row mt-4" @submit.prevent="submit">
       <div class="col-12 form-group">
         <label class="form-label">Email</label>
-        <input type="email" class="form-control mb-0" placeholder="Email" v-model="form.email" autocomplete/>
+        <input type="email" class="form-control mb-0" id="email" placeholder="Email" v-model="form.email" autocomplete/>
+        <div class="invalid-feedback" id="email-feedback"></div>
       </div>
 
       <div class="col-12 form-group">
         <label class="form-label">Password</label>
-        <input type="password" class="form-control mb-0" placeholder="Password" v-model="form.password" autocomplete/>
+        <input type="password" class="form-control mb-0" id="password" placeholder="Password" v-model="form.password" autocomplete/>
+        <div class="invalid-feedback" id="password-feedback"></div>
       </div>
 
       <div class="d-inline-block w-100">
@@ -30,10 +32,15 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapActions } from "vuex"
 export default {
   name: 'SignIn',
   data: () => ({
+    validation: {
+      input: null,
+      message: null
+    },    
     form: {
       email: "",
       password: ""
@@ -41,11 +48,48 @@ export default {
   }),
   methods: {
     ...mapActions({
-      signIn: 'auth/signIn'
+      authMe: 'auth/authMe'
     }),
 
-    submit() {
-      this.signIn(this.form)
+    async submit() {
+      try {
+        let response = await axios.post("api/signin", this.form, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }         
+        });
+
+        const data = response.data
+        if (data.ok === false) {
+          this.validation = {
+            input: data.input,
+            message: data.message
+          }
+          return;
+        } 
+        
+        this.authMe();
+        this.$router.push("sign-in");
+      } catch (e) {
+        console.log("Something went wrong")
+      }
+    }
+  },
+  watch: {
+    validation: {
+      handler(val, oldVal){
+        if (val.input) {
+          console.log(val.input)
+          document.querySelector(`#${val.input}`).classList.toggle("is-invalid");
+          document.querySelector(`#${val.input}-feedback`).textContent = val.message;
+        }
+
+        if (oldVal.input) {
+          document.querySelector(`#${oldVal.input}`).classList.toggle("is-invalid");
+        }
+      },
+      deep: true
     }
   }
 }

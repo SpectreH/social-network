@@ -16,12 +16,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type ValidationResponse struct {
-	OK      bool   `json:"ok"`
-	Input   string `json:"input"`
-	Message string `json:"message"`
-}
-
 func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -101,7 +95,7 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 	if !formValidator.Valid() {
 		message, input := formValidator.Errors.GetFirst()
 
-		response := ValidationResponse{
+		response := models.FormValidationResponse{
 			OK:      false,
 			Input:   input,
 			Message: message,
@@ -135,7 +129,7 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ValidationResponse{OK: true}
+	response := models.FormValidationResponse{OK: true}
 	js, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

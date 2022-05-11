@@ -74,8 +74,21 @@ func (m *sqliteDBRepo) CheckSessionExistence(token string) (int, error) {
 
 // UpdateSessionToken updates token to a new one for user
 func (m *sqliteDBRepo) UpdateSessionToken(token string, id int) error {
-	query := `update user_sessions set sessio = $1 where user_id = $2`
+	query := `update user_sessions set session = $1 where user_id = $2`
 	_, err := m.DB.Exec(query, token, id)
 
 	return err
+}
+
+// GetUserHash gets user's password hash for further compare
+func (m *sqliteDBRepo) GetUserHash(id int) (string, error) {
+	var hash string
+
+	query := `select password from users where id = $1`
+	err := m.DB.QueryRow(query, &id).Scan(&hash)
+	if err != nil {
+		return "", err
+	}
+
+	return hash, nil
 }

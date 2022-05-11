@@ -2,7 +2,6 @@ import axios from "axios";
 export default ({
   namespaced: true,
   state: {
-    token: null,
     user: null
   },
 
@@ -19,14 +18,7 @@ export default ({
   },
 
   actions: {
-    async signIn({ dispatch }, credentials) {
-      let response = await axios.post("api/signin", credentials, { withCredentials: true });
-      dispatch('attempt', response.data)
-    },
-
-    async attempt({ commit }, token) {
-      commit('SET_TOKEN', token)
-
+    async authMe({ commit }) {
       try {
         let response = await axios.get('api/authme', { withCredentials: true })
         commit('SET_USER', response.data)
