@@ -6,7 +6,6 @@ import (
 	"social-network/internal/config"
 	"social-network/internal/database"
 	"social-network/internal/database/sqlite"
-	"time"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -31,6 +30,30 @@ func SetNewHandlers(r *Repository) {
 	Repo = r
 }
 
+func CheckSession(w http.ResponseWriter, r *http.Request) (int, error) {
+	c, err := r.Cookie(config.SESSION_NAME)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return 0, err
+	}
+
+	id, err := Repo.DB.CheckSessionExistence(c.Value)
+	if err != nil {
+		destroySession(w)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func destroySession(w http.ResponseWriter) {
+	c := http.Cookie{
+		Name:   "session_token",
+		MaxAge: -1}
+	http.SetCookie(w, &c)
+}
+
 // createSessionToken creates token for cookies and database
 func createSessionToken(w http.ResponseWriter) string {
 	sessionToken := uuid.NewV4().String()
@@ -38,10 +61,9 @@ func createSessionToken(w http.ResponseWriter) string {
 	http.SetCookie(w, &http.Cookie{
 		Name:     config.SESSION_NAME,
 		Value:    sessionToken,
-		Expires:  time.Now().Add(config.SESSION_EXPIRATION_TIME),
+		MaxAge:   0,
 		Path:     "/",
 		Secure:   true,
-		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
 	})
 

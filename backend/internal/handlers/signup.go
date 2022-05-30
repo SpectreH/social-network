@@ -129,6 +129,12 @@ func (m *Repository) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = m.DB.InsertPrivacySettings(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	response := models.FormValidationResponse{OK: true}
 	js, err := json.Marshal(response)
 	if err != nil {

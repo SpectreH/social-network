@@ -69,8 +69,8 @@ export default {
           return;
         } 
         
-        this.authMe();
-        this.$router.push("sign-in");
+        await this.authMe(data.token); 
+        this.$router.push("/")
       } catch (e) {
         console.log("Something went wrong")
       }

@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"social-network/internal/config"
 	"social-network/internal/models"
 
 	"golang.org/x/crypto/bcrypt"
@@ -24,20 +22,22 @@ func (m *Repository) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	out, _ := json.MarshalIndent(res, "", "    ")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
 
 func (m *Repository) AuthMe(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie(config.SESSION_NAME)
+	id, err := CheckSession(w, r)
+	if err != nil {
+		return
+	}
+
+	user, err := m.DB.GetUserData(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-
-	fmt.Println(c, err)
-
-	user := models.User{Nickname: "Test"}
 
 	out, _ := json.MarshalIndent(user, "", "    ")
 	w.Header().Set("Content-Type", "application/json")
@@ -71,7 +71,8 @@ func (m *Repository) authenticate(authData models.Auth, w http.ResponseWriter) (
 		}, nil
 	}
 
-	err = m.DB.UpdateSessionToken(createSessionToken(w), id)
+	token := createSessionToken(w)
+	err = m.DB.UpdateSessionToken(token, id)
 
-	return models.FormValidationResponse{OK: true}, err
+	return models.FormValidationResponse{OK: true, Token: token}, err
 }

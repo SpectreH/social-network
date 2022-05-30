@@ -10,6 +10,7 @@ type User struct {
 	Avatar    string `json:"avatar"`
 	AboutMe   string `json:"aboutMe"`
 	Password  string `json:"password"`
+	Private   bool   `json:"private"`
 }
 
 type Auth struct {
@@ -21,4 +22,6 @@ type FormValidationResponse struct {
 	OK      bool   `json:"ok"`
 	Input   string `json:"input"`
 	Message string `json:"message"`
+	Token   string `json:"token"`
+	Data    string `json:"data"`
 }

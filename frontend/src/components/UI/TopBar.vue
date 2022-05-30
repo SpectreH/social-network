@@ -60,10 +60,11 @@
 <script>
 import NavDropDown from "./NavDropDown.vue"
 import AccountDropDown from "./AccountDropDown.vue"
+import { mapGetters } from 'vuex'
 export default {
   components: {
     NavDropDown,
-    AccountDropDown
+    AccountDropDown 
   },
   name: "TopBar",
   data() {
@@ -96,10 +97,23 @@ export default {
         ],
       },
       accountDD: {
-        id: "1",
-        avatar: "https://png.pngtree.com/png-vector/20191103/ourlarge/pngtree-handsome-young-guy-avatar-cartoon-style-png-image_1947775.jpg",
-        name: "Denni Karin"
+        id: "",
+        name: ""
       }
+    }
+  }, 
+  created() {
+    const data = this.getUserData();
+
+    this.accountDD.id = data.id
+    this.accountDD.name = `${data.firstName} ${data.lastName}` 
+  },
+  methods: {
+    ...mapGetters({
+      getUser: 'auth/user',
+    }),
+    getUserData() {
+      return this.getUser()
     }
   }
 };

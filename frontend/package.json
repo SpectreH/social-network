@@ -18,7 +18,9 @@
     "remixicon": "^2.5.0",
     "roboto-fontface": "*",
     "vue": "^3.2.13",
+    "vue-cookies": "^1.8.1",
     "vue-router": "^4.0.3",
+    "vue-toast-notification": "^3.0.4",
     "vuetify": "npm:@vuetify/nightly@next",
     "vuex": "^4.0.0",
     "webfontloader": "^1.0.0"
@@ -26,6 +28,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@types/notie": "^4.3.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",

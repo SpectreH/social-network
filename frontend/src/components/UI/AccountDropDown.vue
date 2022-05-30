@@ -7,7 +7,7 @@
     aria-expanded="false"
     :id="accountAttr.id"
   >
-    <img :src="accountAttr.avatar" class="img-fluid rounded-circle me-3" alt="user" />
+    <img :src="'http://localhost:4000/images/' + getAvatar()" class="img-fluid rounded-circle me-3" alt="user" />
     <div class="caption">
       <h6 class="mb-0 line-height">{{ accountAttr.name }}</h6>
     </div>
@@ -66,11 +66,9 @@
         </router-link>
 
         <div class="d-inline-block w-100 text-center p-3">
-          <router-link to="/logout">
-            <a class="btn btn-primary iq-sign-btn" role="button">
-              Sign out<i class="ri-login-box-line ms-2"></i>
-            </a>
-          </router-link>
+          <a class="btn btn-primary iq-sign-btn" role="button" @click="logout">
+            Sign out<i class="ri-login-box-line ms-2"></i>
+          </a>
         </div>
 
       </div>
@@ -79,16 +77,24 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: "AccountDropDown",
   props: {
     accountAttr: {type: Object, default: () => { 
       return {
         id: "",
-        avatar: "",
         name: "",
       } 
     }}
+  },
+  methods: {
+    ...mapGetters({
+      getAvatar: 'auth/avatar',
+    }),
+    logout() {
+      this.$router.push("/logout");
+    }
   }
 }
 </script>
