@@ -67,7 +67,7 @@ export default {
       updateUser: "auth/UPDATE_USER"
     }),
     async updatePrivate() {
-      let response = await axios.post("api/profile/updatePrivacy", { private: this.accountPrivate }, { 
+      let response = await axios.post("api/settings/updatePrivacy", { private: this.accountPrivate }, { 
         headers: {
           "Content-Type": "multipart/form-data"
         },

@@ -9,6 +9,13 @@ type DatabaseRepo interface {
 	InsertPrivacySettings(id int) error
 	GetUserData(id int) (models.User, error)
 	GetUserAvatar(id int) (string, error)
+	GetUserProfile(id int) (models.UserProfile, error)
+	FollowUser(srcId, targetId int) error
+	UnFollow(srcId, targetId int) error
+	InsertUserFollowRequest(srcId, targetId int) error
+	CheckFollowRequest(srcId, targetId int) (int, error)
+	CheckProfileIsPivate(id int) (bool, error)
+	CheckAlreadyFollowed(srcId, targetId int) (int, error)
 	CheckEmailExistence(email string) (int, error)
 	CheckSessionExistence(token string) (int, error)
 	UpdateSessionToken(token string, id int) error

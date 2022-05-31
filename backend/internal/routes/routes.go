@@ -16,9 +16,14 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/signin", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.SignIn)))
 	mux.Handle("/api/authme", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.AuthMe)))
 
-	mux.Handle("/api/profile/updateAvatar", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.UpdateAvatar)))
-	mux.Handle("/api/profile/updateProfile", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.UpdateProfile)))
-	mux.Handle("/api/profile/updatePrivacy", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.UpdatePrivacy)))
+	mux.Handle("/api/settings/updateAvatar", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.UpdateAvatar)))
+	mux.Handle("/api/settings/updateProfile", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.UpdateProfile)))
+	mux.Handle("/api/settings/updatePrivacy", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.UpdatePrivacy)))
+
+	mux.Handle("/api/profile/fetchProfile", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetProfile)))
+	mux.Handle("/api/profile/follow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileFollow)))
+	mux.Handle("/api/profile/unfollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileUnFollow)))
+	mux.Handle("/api/profile/requesttofollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileRequestToFollow)))
 
 	fileServer := http.FileServer(http.Dir("./images"))
 	mux.Handle("/images/", http.StripPrefix("/images", fileServer))

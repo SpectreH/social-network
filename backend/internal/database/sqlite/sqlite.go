@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"social-network/internal/models"
+	"time"
 )
 
 // InsertUser inserts a new user into database
@@ -40,6 +41,79 @@ func (m *sqliteDBRepo) InsertProfileImage(id int, path string) error {
 func (m *sqliteDBRepo) InsertPrivacySettings(id int) error {
 	query := `insert into user_privacy_settings (user_id, private_account) values ($1, $2);`
 	_, err := m.DB.Exec(query, id, false)
+
+	return err
+}
+
+// GetUserProfile gets user's profile
+func (m *sqliteDBRepo) GetUserProfile(id int) (models.UserProfile, error) {
+	var profile models.UserProfile
+
+	query := `select u.id, u.first_name, u.last_name, u.email, u.birth_date, u.nickname, u.about_me, upi.path, ups.private_account,
+  (SELECT COUNT(*) FROM followers WHERE user_id = u.id),
+  (SELECT COUNT(*) FROM followers WHERE follower_id = u.id),
+  (SELECT COUNT(*) FROM posts WHERE user_id = u.id)
+  from users u 
+	JOIN user_profile_images upi ON upi.user_id = u.id 
+	JOIN user_privacy_settings ups ON ups.id = u.id     
+	where u.id = $1`
+
+	err := m.DB.QueryRow(query, id).Scan(&profile.Id, &profile.FirstName, &profile.LastName,
+		&profile.Email, &profile.BirthDate, &profile.Nickname,
+		&profile.AboutMe, &profile.Avatar, &profile.Private,
+		&profile.TotalFollowers, &profile.TotalFollows, &profile.TotalPosts)
+
+	return profile, err
+}
+
+// InsertUserFollowRequest inserts uses's follow request with status pending
+func (m *sqliteDBRepo) InsertUserFollowRequest(srcId, targetId int) error {
+	query := `insert into follow_requests (request_status_id, follow_from, follow_to, requested_at) values ($1, $2, $3, $4);`
+	_, err := m.DB.Exec(query, 1, srcId, targetId, time.Now())
+
+	return err
+}
+
+// CheckFollowRequest checks if follow request already exists
+func (m *sqliteDBRepo) CheckFollowRequest(srcId, targetId int) (int, error) {
+	var res int
+	query := `select COUNT(*) from follow_requests WHERE follow_from = $1 AND follow_to= $2;`
+	err := m.DB.QueryRow(query, srcId, targetId).Scan(&res)
+
+	return res, err
+}
+
+// CheckProfileIsPivate chekcs if user has private account
+func (m *sqliteDBRepo) CheckProfileIsPivate(id int) (bool, error) {
+	var res bool
+
+	query := `select ups.private_account from user_privacy_settings ups where ups.user_id = $1;`
+	err := m.DB.QueryRow(query, id).Scan(&res)
+
+	return res, err
+}
+
+// CheckAlreadyFollowed chekcs if user already followed certain user
+func (m *sqliteDBRepo) CheckAlreadyFollowed(srcId, targetId int) (int, error) {
+	var res int
+	query := `select COUNT(*) from followers WHERE follower_id = $1 AND user_id = $2;`
+	err := m.DB.QueryRow(query, srcId, targetId).Scan(&res)
+
+	return res, err
+}
+
+// FollowUser makes a record with follow
+func (m *sqliteDBRepo) FollowUser(srcId, targetId int) error {
+	query := `insert into followers (user_id, follower_id, followed_at) values ($1, $2, $3);`
+	_, err := m.DB.Exec(query, targetId, srcId, time.Now())
+
+	return err
+}
+
+// UnFollow deletes record about following
+func (m *sqliteDBRepo) UnFollow(srcId, targetId int) error {
+	query := `delete from followers where follower_id = $1 AND user_id = $2;`
+	_, err := m.DB.Exec(query, srcId, targetId)
 
 	return err
 }

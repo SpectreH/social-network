@@ -2,161 +2,256 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
-	"os"
-	"social-network/internal/config"
 	"social-network/internal/models"
-	img "social-network/pkg/image-storage"
+	"strconv"
 )
 
-func (m *Repository) UpdatePrivacy(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) ProfileRequestToFollow(w http.ResponseWriter, r *http.Request) {
 	uid, err := CheckSession(w, r)
 	if err != nil {
 		return
 	}
 
-	err = r.ParseMultipartForm(32 << 20)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var private bool
-	if r.Form.Get("private") == "true" {
-		private = true
-	}
-
-	err = m.DB.UpdateUserPrivacy(uid, private)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	response := models.FormValidationResponse{
-		OK:      true,
-		Message: "Profile privacy successfully updated!",
+		OK: true,
 	}
 
-	js, err := json.Marshal(response)
+	queries := r.URL.Query()
+	id := queries.Get("id")
+	if id == "" {
+		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
+		return
+	}
+
+	intId, err := strconv.Atoi(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(js)
-}
-
-func (m *Repository) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	uid, err := CheckSession(w, r)
-	if err != nil {
-		return
-	}
-
-	err = r.ParseMultipartForm(32 << 20)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	aboutMe := r.Form.Get("aboutMe")
-	nickname := r.Form.Get("nickname")
-	m.DB.UpdateUserProfile(uid, aboutMe, nickname)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	response := models.FormValidationResponse{
-		OK:      true,
-		Message: "Profile settings successfully updated!",
-	}
-
-	js, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(js)
-}
-
-func (m *Repository) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
-	uid, err := CheckSession(w, r)
-	if err != nil {
-		return
-	}
-
-	err = r.ParseMultipartForm(32 << 20) // maxMemory 32MB
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	imageStorage := img.NewImageStorage(r, "avatar")
-	image, err := imageStorage.InitImage(config.AVATAR_SAVE_PATH)
-	if err != nil && err != http.ErrMissingFile {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	response := models.FormValidationResponse{
-		OK:      true,
-		Message: "Success",
-	}
-
-	if !image.CheckImgExtensionPermitted() {
 		response = models.FormValidationResponse{
 			OK:      false,
-			Message: "Only JPG, JPEG, PNG, GIF are allowed",
+			Message: "Profile with this id doesn't exist!",
 		}
 	}
 
-	ok, err := image.CheckImgSize(config.AVATAR_MAX_SIZE)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
+	if intId == uid {
 		response = models.FormValidationResponse{
 			OK:      false,
-			Message: "File size shoud be less than 5 MB",
+			Message: "You can't follow yourself!",
 		}
 	}
 
-	path, err := m.DB.GetUserAvatar(uid)
+	if response.OK {
+		res, err := m.DB.CheckFollowRequest(uid, intId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if res != 0 {
+			response = models.FormValidationResponse{
+				OK:      false,
+				Message: "Follow request already sended!",
+			}
+		}
+	}
+
+	if response.OK {
+		err = m.DB.InsertUserFollowRequest(uid, intId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		response.Message = "Follow request successfully sended!"
+	}
+
+	out, _ := json.MarshalIndent(response, "", "    ")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+	return
+}
+
+func (m *Repository) ProfileUnFollow(w http.ResponseWriter, r *http.Request) {
+	uid, err := CheckSession(w, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if path != config.DEFAULT_AVATAR {
-		err = os.Remove(fmt.Sprintf("./images/%s", path))
+	response := models.FormValidationResponse{
+		OK: true,
 	}
 
-	err = m.DB.UpdateUserAvatar(uid, image.Name)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	queries := r.URL.Query()
+	id := queries.Get("id")
+	if id == "" {
+		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = image.Save()
+	intId, err := strconv.Atoi(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "Profile with this id doesn't exist!",
+		}
+	}
+
+	if intId == uid {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "You can't unfollow yourself!",
+		}
+	}
+
+	if response.OK {
+		err = m.DB.UnFollow(uid, intId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		response.Message = "You stopped following this profile!"
+	}
+
+	out, _ := json.MarshalIndent(response, "", "    ")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+	return
+}
+
+func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
+	uid, err := CheckSession(w, r)
+	if err != nil {
 		return
 	}
 
-	response = models.FormValidationResponse{
-		OK:   true,
-		Data: image.Name,
+	response := models.FormValidationResponse{
+		OK: true,
 	}
 
-	js, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	queries := r.URL.Query()
+	id := queries.Get("id")
+	if id == "" {
+		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Write(js)
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "Profile with this id doesn't exist!",
+		}
+	}
+
+	if intId == uid {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "You can't follow yourself!",
+		}
+	}
+
+	if response.OK {
+		private, err := m.DB.CheckProfileIsPivate(intId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if private {
+			response = models.FormValidationResponse{
+				OK:      false,
+				Message: "You must request to follow this profile!",
+			}
+		}
+	}
+
+	if response.OK {
+		res, err := m.DB.CheckAlreadyFollowed(uid, intId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if res != 0 {
+			response = models.FormValidationResponse{
+				OK:      false,
+				Message: "You already following that user!",
+			}
+		}
+	}
+
+	if response.OK {
+		err = m.DB.FollowUser(uid, intId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		response.Message = "You now following this profile!"
+	}
+
+	out, _ := json.MarshalIndent(response, "", "    ")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+	return
+}
+
+func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
+	uid, err := CheckSession(w, r)
+	if err != nil {
+		return
+	}
+
+	response := models.FormValidationResponse{
+		OK: true,
+	}
+
+	queries := r.URL.Query()
+	id := queries.Get("id")
+	if id == "" {
+		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
+		return
+	}
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "Profile with this id doesn't exist!",
+		}
+	}
+
+	profile, err := m.DB.GetUserProfile(intId)
+	if err != nil {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "Profile with this id doesn't exist!",
+		}
+	}
+
+	if intId == uid {
+		profile.IsMyProfile = true
+	}
+
+	if !response.OK {
+		out, _ := json.MarshalIndent(response, "", "    ")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+		return
+	}
+
+	res, err := m.DB.CheckAlreadyFollowed(uid, intId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if res == 1 {
+		profile.Following = true
+	}
+
+	out, _ := json.MarshalIndent(profile, "", "    ")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }

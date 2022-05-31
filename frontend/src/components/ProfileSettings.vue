@@ -174,7 +174,7 @@ export default {
         return
       }
 
-      let response = await axios.post("api/profile/updateAvatar", {avatar: file}, { 
+      let response = await axios.post("api/settings/updateAvatar", {avatar: file}, { 
         headers: {
           "Content-Type": "multipart/form-data"
         },
@@ -198,7 +198,7 @@ export default {
     },
 
     async updateData() {
-      let response = await axios.post("api/profile/updateProfile", this.inputs, { 
+      let response = await axios.post("api/settings/updateProfile", this.inputs, { 
         headers: {
           "Content-Type": "multipart/form-data"
         },

@@ -1,5 +1,5 @@
 <template>
-  <UserProfile/>
+  <UserProfile :userId="userId"/>
 </template>
 
 <script>

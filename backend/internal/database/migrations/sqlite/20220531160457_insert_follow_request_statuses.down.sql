@@ -1,0 +1,1 @@
+DELETE FROM follow_request_statuses
