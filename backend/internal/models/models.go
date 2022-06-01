@@ -40,15 +40,38 @@ type Follow struct {
 	Type      string `json:"type"`
 	Followers int    `json:"totalFollowers"`
 	Avatar    string `json:"avatar"`
+	Selected  bool   `json:"selected"`
+}
+
+type PostInside struct {
+	Post     Post      `json:"post"`
+	Comments []Comment `json:"comments"`
+}
+
+type Comment struct {
+	Id     string `json:"id"`
+	AuthId int    `json:"authorId"`
+	Author
+	Picture   string    `json:"picture"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+type Author struct {
+	Avatar    string `json:"avatar"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 type Post struct {
-	Id        string
-	AuthId    int
-	ShareId   int
-	Title     string
-	Content   []string
-	CreatedAt time.Time
+	Id     string `json:"id"`
+	AuthId int    `json:"authorId"`
+	Author
+	ShareId    string    `json:"shareId"`
+	Picture    string    `json:"picture"`
+	Paragraphs []string  `json:"paragraphs"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 type Auth struct {

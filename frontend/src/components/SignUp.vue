@@ -116,9 +116,31 @@ export default {
       }
     },
     setAvatar(e) {
-      const files = e.target.files || e.dataTransfer.files;
-      if (!files.length) { return; }
-      this.form.avatar = files[0]
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+
+      const file = files[0]
+
+      const [extension] = file.type.split("/")
+      if ((!(extension == "image"))) {
+        this.$toast.open({
+          message: 'Only images allowed to upload!',
+          type: 'error',
+        });
+        return
+      }
+
+      if (file.size > 2048000) { // 2 MB
+        this.$toast.open({
+          message: 'Image size must be less than 2 MB!',
+          type: 'error',
+        });
+        return
+      }
+
+      this.form.avatar = file;
     }
   },
   watch: {

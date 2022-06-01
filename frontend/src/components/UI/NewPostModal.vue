@@ -30,7 +30,7 @@
                 class="form-control rounded"
                 placeholder="Write something here..."
                 style="border: none;"
-                :v-model="postContent"
+                v-model="postContent"
               />
             </form>
           </div>
@@ -46,7 +46,7 @@
                   class="form-control mb-0"
                   accept="image/png, image/gif, image/jpeg"
                   type="file"
-                  :v-model="postImage"
+                  @change="setImage"
                 />
               </div>
             </div>
@@ -94,14 +94,14 @@
                 <div class="d-flex align-items-center">
                   <h6>Choose the followers to give access</h6>
                 </div>
-                <SelectionDropDown :selectionAttr="selectionDD" />
+                <SelectionDropDown :selectionAttr="selectionDD"/>
               </div>
             </div>
           </div>
         </div>
 
         <div class="modal-footer justify-content-center">
-          <button type="button" class="col-4 btn btn-primary">Post</button>
+          <button type="button" class="col-4 btn btn-primary" @click="submit">Post</button>
         </div>
       </div>
     </div>
@@ -109,6 +109,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import SelectionDropDown from "./SelectionDropDown.vue"
 export default {
   name: "NewPostModal",
@@ -143,25 +144,19 @@ export default {
       ],
       selectionDD: {
         label: "Followers",
-        elements: [
-          {
-            label: "Denni Karin",
-            id: "4",
-            selected: false,
-          },
-          {
-            label: "Denni Karin",
-            id: "2",
-            selected: false,
-          },
-          {
-            label: "Denni Karin",
-            id: "3",
-            selected: false,
-          }
-        ]
+        elements: []
       }
     }
+  },
+  async created() {
+    let response = await axios.get('api/followers', { withCredentials: true } );
+
+    if (!response.data) {
+      this.selectionDD.elements = [];
+      return
+    }
+
+    this.selectionDD.elements = response.data;
   },
   computed: {
     setShareSettingType() {
@@ -176,6 +171,85 @@ export default {
       textarea.style.height = "";
       textarea.style.height = Math.min(textarea.scrollHeight, limit) + "px";
     };
+  },
+  methods: {
+    async submit() {
+      let form = {
+        postContent: this.postContent,
+        postImage: this.postImage,
+        postShare: this.currentShareSettings,
+        followers: JSON.stringify(this.selectionDD.elements)
+      };
+
+      if (!this.postContent) {
+        this.$toast.open({
+          message: 'Please fill post content!',
+          type: 'error',
+        });
+        return;
+      }
+
+      if (this.currentShareSettings === 2) {
+        let selected = this.selectionDD.elements.filter(e => {
+          return e.selected
+        })
+
+        if (selected.length === 0) {
+          this.$toast.open({
+            message: 'You must select at least one folower!',
+            type: 'error',
+          });
+          return;
+        }
+
+        form.followers = JSON.stringify(selected);
+      }
+
+      let response = await axios.post("api/post/new", form, { 
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data"
+        } 
+      });
+
+      if (response.data.ok === true) {
+        this.$toast.open({
+          message: response.data.message,
+          type: 'success',
+        });
+      }
+    },
+    setImage(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+
+      const file = files[0]
+
+      const [extension] = file.type.split("/")
+      if ((!(extension == "image"))) {
+        this.$toast.open({
+          message: 'Only images allowed to upload!',
+          type: 'error',
+        });
+        e.target.value = null;
+        this.postImage = null;    
+        return
+      }
+
+      if (file.size > 2048000) { // 2 MB
+        this.$toast.open({
+          message: 'Image size must be less than 2 MB!',
+          type: 'error',
+        });
+        e.target.value=null;
+        this.postImage = null;        
+        return
+      }
+
+      this.postImage = file;
+    }
   }  
 }
 </script>

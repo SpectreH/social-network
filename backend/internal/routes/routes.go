@@ -31,6 +31,11 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/acceptrequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.AcceptRequest)))
 	mux.Handle("/api/declinerequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.DeclineRequest)))
 
+	mux.Handle("/api/post/new", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.PostNew)))
+	mux.Handle("/api/post", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetPostContent)))
+
+	mux.Handle("/api/followers", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.FollowerList)))
+
 	fileServer := http.FileServer(http.Dir("./images"))
 	mux.Handle("/images/", http.StripPrefix("/images", fileServer))
 

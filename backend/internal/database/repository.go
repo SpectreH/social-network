@@ -12,9 +12,13 @@ type DatabaseRepo interface {
 	GetUserProfile(id int) (models.UserProfile, error)
 	GetUserFullName(id int) (string, error)
 	GetUserFollowRequests(id int) ([]models.SocketMessage, error)
+	GetPost(id int) (models.Post, error)
+	GetPostComments(id int) ([]models.Comment, error)
 	FollowUser(srcId, targetId int) error
 	UnFollow(srcId, targetId int) error
 	InsertUserFollowRequest(srcId, targetId int) error
+	InsertPost(post models.Post) (int, error)
+	InsertPostPicture(id int, path string) error
 	RemoveFollowRequest(sourceId, destId int) error
 	GetUserFollowers(id int) ([]models.Follow, error)
 	GetUserFollows(id int) ([]models.Follow, error)

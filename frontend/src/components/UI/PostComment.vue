@@ -2,9 +2,9 @@
 <template>
   <div class="d-flex">
     <div class="user-img" style="min-width: 35px">
-      <router-link to="/user/1">
+      <router-link :to="'/user/' + comment.authorId">
         <img
-          src="https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/02.jpg"
+          :src="comment.avatar"
           alt="userimg"
           class="avatar-35 rounded-circle img-fluid"
           width="35px"
@@ -13,14 +13,14 @@
       </router-link>  
     </div>
     <div class="comment-data-block ms-3">
-      <router-link to="/user/1">
-        <h6 class="d-inline-flex">Monty Carlo</h6>
+      <router-link :to="'/user/' + comment.authorId">
+        <h6 class="d-inline-flex">{{ comment.fistName }} {{ comment.lastName }}</h6>
       </router-link>
-      <p class="mb-0">Lorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit ametLorem ipsum dolor sit amet</p>
+      <p class="mb-0">{{ comment.content }}</p>
       <div
         class="d-flex flex-wrap align-items-center comment-activity"
       >
-        <span class="text-primary"> 5 min </span>
+        <span class="text-primary"> comment.createdAt </span>
       </div>
     </div>
   </div>
@@ -28,6 +28,9 @@
 
 <script>
 export default {
-  name: "PostComment"
+  name: "PostComment",
+  props: {
+    comment: {type: Object}
+  }
 }
 </script>

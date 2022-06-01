@@ -79,12 +79,12 @@ func getIdFromQuery(r *http.Request) (int, error) {
 	queries := r.URL.Query()
 	strId := queries.Get("id")
 	if strId == "" {
-		return 0, errors.New("Profile with this id doesn't exist!")
+		return 0, errors.New("Page with this id doesn't exist!")
 	}
 
 	id, err := strconv.Atoi(strId)
 	if err != nil {
-		return 0, errors.New("Profile with this id doesn't exist!")
+		return 0, errors.New("Page with this id doesn't exist!")
 	}
 
 	return id, err

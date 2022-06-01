@@ -6,7 +6,7 @@
         <div v-for="(element, index) of selectionAttr.elements" :key="index">
           <div class="mx-2 dropdown-element">
             <input type="checkbox" :id="element.id" v-model="element.selected">
-            <label :for="element.id">{{element.label}}</label>
+            <label :for="element.id">{{element.firstName}} {{element.lastName}}</label>
           </div>
           <hr class="m-0">
         </div>
@@ -30,6 +30,8 @@ export default {
     }}
   },
   data: () => ({}),
+  methods: {
+  }
 }
 </script>
 

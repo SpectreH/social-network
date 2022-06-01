@@ -88,8 +88,7 @@ export default createStore({
         if (!response.data) {
           response.data = [];
         }
-
-        console.log(response.data)
+        
         commit('SET_REQUESTS', response.data);
       } catch (e) {
         commit('SET_REQUESTS', []);      

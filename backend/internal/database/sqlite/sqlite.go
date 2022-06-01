@@ -88,6 +88,26 @@ func (m *sqliteDBRepo) InsertUserFollowRequest(srcId, targetId int) error {
 	return err
 }
 
+// InsertPost inserts new post
+func (m *sqliteDBRepo) InsertPost(post models.Post) (int, error) {
+	var id int
+
+	fmt.Println(post.Content, post.CreatedAt)
+
+	query := `insert into posts (user_id, share_id, content, created_at) values ($1, $2, $3, $4) returning id;`
+	err := m.DB.QueryRow(query, post.AuthId, post.ShareId, post.Content, post.CreatedAt).Scan(&id)
+
+	return id, err
+}
+
+// InsertPostPicture inserts post picture
+func (m *sqliteDBRepo) InsertPostPicture(id int, path string) error {
+	query := `insert into post_images (post_id, path) values ($1, $2);`
+	_, err := m.DB.Exec(query, id, path)
+
+	return err
+}
+
 // CheckFollowRequest checks if follow request already exists
 func (m *sqliteDBRepo) CheckFollowRequest(srcId, targetId int) (int, error) {
 	var res int
@@ -130,6 +150,54 @@ func (m *sqliteDBRepo) UnFollow(srcId, targetId int) error {
 	_, err := m.DB.Exec(query, srcId, targetId)
 
 	return err
+}
+
+// GetPost gets all data about post
+func (m *sqliteDBRepo) GetPost(id int) (models.Post, error) {
+	var res models.Post
+
+	query := `SELECT p.id, p.user_id, u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+	JOIn post_images pi ON pi.post_id = p.id
+	JOIn users u ON u.id = p.user_id
+	JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+	WHEre p.id = $1;`
+	err := m.DB.QueryRow(query, id).Scan(&res.Id, &res.AuthId, &res.FirstName, &res.LastName, &res.Avatar, &res.ShareId, &res.Content, &res.Picture, &res.CreatedAt)
+
+	res.Picture = config.AVATAR_PATH_URL + res.Picture
+	res.Avatar = config.AVATAR_PATH_URL + res.Avatar
+
+	return res, err
+}
+
+// GetPostComments gets all post comments
+func (m *sqliteDBRepo) GetPostComments(id int) ([]models.Comment, error) {
+	var comments []models.Comment
+
+	query := `SELECT c.id, c.user_id, u.first_name, u.last_name, ufi.path, c.content, c.created_at, ci.path FROM comments c
+	JOIN comment_images ci ON ci.comment_id= c.id
+	JOIN users u ON u.id = c.user_id  
+	JOIn user_profile_images ufi ON ufi.user_id = c.user_id
+	WHEre c.post_id = $1;`
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil && err != sql.ErrNoRows {
+		return comments, err
+	}
+
+	for rows.Next() {
+		var comment models.Comment
+
+		if rows.Scan(&comment.Id, &comment.AuthId, &comment.FirstName, &comment.LastName, &comment.Avatar, &comment.Content, &comment.CreatedAt, &comment.Picture) != nil {
+			return comments, err
+		}
+
+		comment.Picture = config.AVATAR_PATH_URL + comment.Picture
+		comment.Avatar = config.AVATAR_PATH_URL + comment.Avatar
+
+		comments = append(comments, comment)
+	}
+
+	return comments, nil
 }
 
 // GetUserFollowRequests gets all follow requests of certain user
