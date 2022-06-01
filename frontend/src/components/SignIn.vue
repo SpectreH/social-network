@@ -70,6 +70,8 @@ export default {
         } 
         
         await this.authMe(data.token); 
+        
+        this.$connect("ws://127.0.0.1:4000/api/socket");
         this.$router.push("/")
       } catch (e) {
         console.log("Something went wrong")

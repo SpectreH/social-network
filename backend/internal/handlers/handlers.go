@@ -6,6 +6,7 @@ import (
 	"social-network/internal/config"
 	"social-network/internal/database"
 	"social-network/internal/database/sqlite"
+	"social-network/internal/socket"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -13,12 +14,14 @@ import (
 // Repository is the repository type (Repository pattern)
 type Repository struct {
 	DB database.DatabaseRepo
+	SR *socket.SocketReader
 }
 
 // CreateNewRepo creates a new repository
-func CreateNewRepo(conn *sql.DB) *Repository {
+func CreateNewRepo(conn *sql.DB, sr *socket.SocketReader) *Repository {
 	return &Repository{
 		DB: sqlite.SetSqliteRepo(conn),
+		SR: sr,
 	}
 }
 

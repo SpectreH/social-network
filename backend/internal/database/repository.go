@@ -10,6 +10,7 @@ type DatabaseRepo interface {
 	GetUserData(id int) (models.User, error)
 	GetUserAvatar(id int) (string, error)
 	GetUserProfile(id int) (models.UserProfile, error)
+	GetUserFullName(id int) (string, error)
 	FollowUser(srcId, targetId int) error
 	UnFollow(srcId, targetId int) error
 	InsertUserFollowRequest(srcId, targetId int) error

@@ -14,6 +14,7 @@ export default {
     }),
     async signOut() {
       await this.logOut()
+      this.$disconnect();
       this.$router.push("/sign-in")
     }
   }

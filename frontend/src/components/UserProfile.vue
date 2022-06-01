@@ -188,6 +188,13 @@ export default {
     async requestToFollow() {
       let response = await axios.get('api/profile/requesttofollow', { params: { id: this.userId }, withCredentials: true } );
       this.parseResponse(response);
+
+      if (response.data.ok === true) {
+        this.$socket.send(JSON.stringify({
+          dest: this.userId,
+          type: "followRequest" 
+        }))
+      }  
     },
     parseResponse(response) {
       if (response.data.ok === false) {

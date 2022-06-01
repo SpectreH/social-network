@@ -9,6 +9,7 @@ import (
 	"social-network/internal/handlers"
 	middleware "social-network/internal/middleware"
 	"social-network/internal/routes"
+	"social-network/internal/socket"
 )
 
 func main() {
@@ -20,8 +21,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	socketReader := socket.SetSocketReader(database)
 	mwRepo := middleware.CreateNewRepo(database)
-	handlersRepo := handlers.CreateNewRepo(database)
+	handlersRepo := handlers.CreateNewRepo(database, socketReader)
 
 	handlers.SetNewHandlers(handlersRepo)
 	middleware.SetNewMiddleware(mwRepo)

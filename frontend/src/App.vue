@@ -36,5 +36,10 @@ export default {
       authenticated: 'auth/authenticated',
     })
   },
+  created() {
+    if (this.authenticated) {
+      this.$connect("ws://127.0.0.1:4000/api/socket");
+    }
+  }
 }
 </script>

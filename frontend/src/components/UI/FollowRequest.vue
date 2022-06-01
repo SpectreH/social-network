@@ -1,5 +1,5 @@
 <template>
-  <div :key="request.id" class="col-12 iq-follow-request">
+  <div class="col-12 iq-follow-request">
     <div
       class="
         iq-sub-card iq-sub-card-big

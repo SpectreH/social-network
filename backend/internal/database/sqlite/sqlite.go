@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 	"social-network/internal/models"
 	"time"
 )
@@ -43,6 +44,16 @@ func (m *sqliteDBRepo) InsertPrivacySettings(id int) error {
 	_, err := m.DB.Exec(query, id, false)
 
 	return err
+}
+
+// GetUserFullName gets users's full name
+func (m *sqliteDBRepo) GetUserFullName(id int) (string, error) {
+	var fn, ln string
+
+	query := `select u.first_name, u.last_name from users u where u.id = $1`
+	err := m.DB.QueryRow(query, id).Scan(&fn, &ln)
+
+	return fmt.Sprintf("%s %s", fn, ln), err
 }
 
 // GetUserProfile gets user's profile

@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import VueNativeSock from "vue-native-websocket-vue3";
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
 import "./assets/styles/style.css"
@@ -12,10 +13,17 @@ import axios from 'axios'
 import VueToast from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
 
-
 require('@/store/auth/subscriber')
 axios.defaults.baseURL = 'http://127.0.0.1:4000/'
 
-store.dispatch('auth/authMe', localStorage.getItem('sn_token')).then(() => {
-  createApp(App).use(router).use(store).use(VueToast).mount('#app')
-})
+const app = createApp(App)
+
+store.dispatch('auth/authMe', localStorage.getItem('sn_token')).then(function() {
+  app.use(store)
+    .use(router)
+    .use(VueNativeSock, "ws://127.0.0.1:4000/api/socket", { store: store, "connectManually": true }).use(VueToast)
+    .mount("#app")
+}.bind(app))
+
+
+export { app }

@@ -62,3 +62,13 @@ type FormValidationResponse struct {
 	Token   string `json:"token"`
 	Data    string `json:"data"`
 }
+
+type SocketMessage struct {
+	Avatar     string    `json:"avatar"`
+	Dest       string    `json:"dest"`
+	To         int       `json:"to"`
+	Source     int       `json:"from"`
+	SourceName string    `json:"fromName"`
+	Type       string    `json:"type"`
+	Date       time.Time `json:"date"`
+}

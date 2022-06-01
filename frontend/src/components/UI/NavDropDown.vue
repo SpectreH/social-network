@@ -21,7 +21,7 @@
       </div>
       <div class="card-body p-0">
         <div v-if="menuAttr.id === 'notification-drop'">
-          <div v-for="element in menuAttr.elements" :key="element.id" href="#" class="iq-sub-card">
+          <div v-for="(element, index) in menuAttr.elements" :key="index" href="#" class="iq-sub-card">
             <NotificationMessage :notification="element" />
           </div>
           <div v-if="menuAttr.elements.length === 0">

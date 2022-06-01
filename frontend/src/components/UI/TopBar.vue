@@ -75,8 +75,8 @@ export default {
         title: "All Notifications",
         elements: [
           {
-            id: 0,
             avatar: "https://png.pngtree.com/png-vector/20191103/ourlarge/pngtree-handsome-young-guy-avatar-cartoon-style-png-image_1947775.jpg",
+            authorId: 1,
             author: "Test",
             sub: "New message",
             time: "28.03.12 12:23",
@@ -89,8 +89,8 @@ export default {
         title: "Requests",
         elements: [
           {
-            id: 0,
             avatar: "https://png.pngtree.com/png-vector/20191103/ourlarge/pngtree-handsome-young-guy-avatar-cartoon-style-png-image_1947775.jpg",
+            authorId: 1,
             author: "Jaques Amole",
             sub: "Wants to join your group",
           }

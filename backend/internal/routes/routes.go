@@ -25,6 +25,8 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/profile/unfollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileUnFollow)))
 	mux.Handle("/api/profile/requesttofollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileRequestToFollow)))
 
+	mux.Handle("/api/socket", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.CreateSocketReader)))
+
 	fileServer := http.FileServer(http.Dir("./images"))
 	mux.Handle("/images/", http.StripPrefix("/images", fileServer))
 
