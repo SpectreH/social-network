@@ -40,7 +40,7 @@
             </li>
 
             <li class="nav-item dropdown">
-              <nav-drop-down :menuAttr="requestDD" ></nav-drop-down>
+              <nav-drop-down :menuAttr="requestDD" :requests="getRequests"></nav-drop-down>
             </li>
 
             <li class="nav-item dropdown">
@@ -87,21 +87,18 @@ export default {
         id: "follow-drop",
         icon: "ri-group-line",
         title: "Requests",
-        elements: [
-          {
-            avatar: "https://png.pngtree.com/png-vector/20191103/ourlarge/pngtree-handsome-young-guy-avatar-cartoon-style-png-image_1947775.jpg",
-            authorId: 1,
-            author: "Jaques Amole",
-            sub: "Wants to join your group",
-          }
-        ],
       },
       accountDD: {
         id: "",
         name: ""
       }
     }
-  }, 
+  },
+  computed: {
+    ...mapGetters({
+      getRequests: 'requests',
+    })
+  },
   created() {
     const data = this.getUserData();
 

@@ -1,6 +1,7 @@
 import { createStore } from 'vuex'
 import auth from './auth/auth'
 import { app } from '@/main'
+import axios from "axios";
 
 export default createStore({
   state: {
@@ -15,11 +16,17 @@ export default createStore({
       heartBeatInterval: 50000,
       // Heartbeat timer
       heartBeatTimer: 0,
+    },
 
-      requests: []
-    }
+    requests: []
   },
   mutations: {
+    SET_REQUESTS(state, req) {
+      state.requests = req;
+    },
+    REMOVE_REQUEST(state, index) {
+      state.requests.splice(index, 1)
+    },
     // Connection open
     SOCKET_ONOPEN(state, event) {
       app.config.globalProperties.$socket = event.currentTarget;
@@ -31,6 +38,8 @@ export default createStore({
         state.socket.isConnected &&
           app.config.globalProperties.$socket.send(message);
       }, state.socket.heartBeatInterval);
+
+      this.dispatch("loadRequests")
     },
     // Connection closed
     SOCKET_ONCLOSE(state, event) {
@@ -51,12 +60,7 @@ export default createStore({
 
       switch (socketMessage.type) {
         case "followRequest":
-          state.socket.requests.push({
-            avatar: "http://localhost:4000/images/" + socketMessage.avatar,
-            authorId: socketMessage.from,
-            author: socketMessage.fromName,
-            sub: "Wants to be your follower",
-          })
+          state.requests.push(socketMessage)
           break;
       }
 
@@ -73,12 +77,24 @@ export default createStore({
   },
   getters: {
     requests(state) {
-      console.log(state.socket.requests);
-
-      return state.socket.requests;
+      return state.requests;
     },
   },
   actions: {
+    async loadRequests({ commit }) {
+      try {
+        let response = await axios.get('api/requests', { withCredentials: true })
+        
+        if (!response.data) {
+          response.data = [];
+        }
+
+        console.log(response.data)
+        commit('SET_REQUESTS', response.data);
+      } catch (e) {
+        commit('SET_REQUESTS', []);      
+      }
+    }
   },
   modules: {
     auth

@@ -22,10 +22,14 @@ func SetRoutes() http.Handler {
 
 	mux.Handle("/api/profile/fetchProfile", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetProfile)))
 	mux.Handle("/api/profile/follow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileFollow)))
+	mux.Handle("/api/profile/removefollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileRemoveFollow)))
 	mux.Handle("/api/profile/unfollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileUnFollow)))
 	mux.Handle("/api/profile/requesttofollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileRequestToFollow)))
 
 	mux.Handle("/api/socket", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.CreateSocketReader)))
+	mux.Handle("/api/requests", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetRequestList)))
+	mux.Handle("/api/acceptrequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.AcceptRequest)))
+	mux.Handle("/api/declinerequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.DeclineRequest)))
 
 	fileServer := http.FileServer(http.Dir("./images"))
 	mux.Handle("/images/", http.StripPrefix("/images", fileServer))

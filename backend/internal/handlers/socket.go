@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -40,4 +41,20 @@ func (m *Repository) CreateSocketReader(w http.ResponseWriter, r *http.Request) 
 	}
 
 	m.SR.AppendNewConnection(con, fullName, uid)
+}
+
+func (m *Repository) GetRequestList(w http.ResponseWriter, r *http.Request) {
+	uid, err := CheckSession(w, r)
+	if err != nil {
+		return
+	}
+
+	req, err := m.DB.GetUserFollowRequests(uid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	out, _ := json.MarshalIndent(req, "", "    ")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }

@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"social-network/internal/models"
-	"strconv"
 )
 
 func (m *Repository) ProfileRequestToFollow(w http.ResponseWriter, r *http.Request) {
@@ -18,22 +16,15 @@ func (m *Repository) ProfileRequestToFollow(w http.ResponseWriter, r *http.Reque
 		OK: true,
 	}
 
-	queries := r.URL.Query()
-	id := queries.Get("id")
-	if id == "" {
-		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
-		return
-	}
-
-	intId, err := strconv.Atoi(id)
+	destId, err := getIdFromQuery(r)
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
-			Message: "Profile with this id doesn't exist!",
+			Message: err.Error(),
 		}
 	}
 
-	if intId == uid {
+	if destId == uid {
 		response = models.FormValidationResponse{
 			OK:      false,
 			Message: "You can't follow yourself!",
@@ -41,7 +32,7 @@ func (m *Repository) ProfileRequestToFollow(w http.ResponseWriter, r *http.Reque
 	}
 
 	if response.OK {
-		res, err := m.DB.CheckFollowRequest(uid, intId)
+		res, err := m.DB.CheckFollowRequest(uid, destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -56,13 +47,54 @@ func (m *Repository) ProfileRequestToFollow(w http.ResponseWriter, r *http.Reque
 	}
 
 	if response.OK {
-		err = m.DB.InsertUserFollowRequest(uid, intId)
+		err = m.DB.InsertUserFollowRequest(uid, destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		response.Message = "Follow request successfully sended!"
+	}
+
+	out, _ := json.MarshalIndent(response, "", "    ")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+	return
+}
+
+func (m *Repository) ProfileRemoveFollow(w http.ResponseWriter, r *http.Request) {
+	uid, err := CheckSession(w, r)
+	if err != nil {
+		return
+	}
+
+	response := models.FormValidationResponse{
+		OK: true,
+	}
+
+	sourceId, err := getIdFromQuery(r)
+	if err != nil {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: err.Error(),
+		}
+	}
+
+	if sourceId == uid {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: "You can't remove yourself!",
+		}
+	}
+
+	if response.OK {
+		err = m.DB.UnFollow(sourceId, uid)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		response.Message = "You successfully removed follower!"
 	}
 
 	out, _ := json.MarshalIndent(response, "", "    ")
@@ -81,22 +113,15 @@ func (m *Repository) ProfileUnFollow(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	queries := r.URL.Query()
-	id := queries.Get("id")
-	if id == "" {
-		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
-		return
-	}
-
-	intId, err := strconv.Atoi(id)
+	destId, err := getIdFromQuery(r)
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
-			Message: "Profile with this id doesn't exist!",
+			Message: err.Error(),
 		}
 	}
 
-	if intId == uid {
+	if destId == uid {
 		response = models.FormValidationResponse{
 			OK:      false,
 			Message: "You can't unfollow yourself!",
@@ -104,7 +129,7 @@ func (m *Repository) ProfileUnFollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if response.OK {
-		err = m.DB.UnFollow(uid, intId)
+		err = m.DB.UnFollow(uid, destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -129,22 +154,15 @@ func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	queries := r.URL.Query()
-	id := queries.Get("id")
-	if id == "" {
-		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
-		return
-	}
-
-	intId, err := strconv.Atoi(id)
+	destId, err := getIdFromQuery(r)
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
-			Message: "Profile with this id doesn't exist!",
+			Message: err.Error(),
 		}
 	}
 
-	if intId == uid {
+	if destId == uid {
 		response = models.FormValidationResponse{
 			OK:      false,
 			Message: "You can't follow yourself!",
@@ -152,7 +170,7 @@ func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if response.OK {
-		private, err := m.DB.CheckProfileIsPivate(intId)
+		private, err := m.DB.CheckProfileIsPivate(destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -167,7 +185,7 @@ func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if response.OK {
-		res, err := m.DB.CheckAlreadyFollowed(uid, intId)
+		res, err := m.DB.CheckAlreadyFollowed(uid, destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -182,7 +200,7 @@ func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if response.OK {
-		err = m.DB.FollowUser(uid, intId)
+		err = m.DB.FollowUser(uid, destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -207,31 +225,20 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	queries := r.URL.Query()
-	id := queries.Get("id")
-	if id == "" {
-		http.Error(w, errors.New("No id inside query").Error(), http.StatusBadRequest)
-		return
+	destId, err := getIdFromQuery(r)
+	if err != nil {
+		response = models.FormValidationResponse{
+			OK:      false,
+			Message: err.Error(),
+		}
 	}
 
-	intId, err := strconv.Atoi(id)
+	profile, err := m.DB.GetUserProfile(destId)
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
 			Message: "Profile with this id doesn't exist!",
 		}
-	}
-
-	profile, err := m.DB.GetUserProfile(intId)
-	if err != nil {
-		response = models.FormValidationResponse{
-			OK:      false,
-			Message: "Profile with this id doesn't exist!",
-		}
-	}
-
-	if intId == uid {
-		profile.IsMyProfile = true
 	}
 
 	if !response.OK {
@@ -241,7 +248,11 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := m.DB.CheckAlreadyFollowed(uid, intId)
+	if destId == uid {
+		profile.IsMyProfile = true
+	}
+
+	res, err := m.DB.CheckAlreadyFollowed(uid, destId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -249,6 +260,22 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	if res == 1 {
 		profile.Following = true
+	}
+
+	if (profile.Private && profile.Following) || profile.IsMyProfile {
+		followers, err := m.DB.GetUserFollowers(destId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		follows, err := m.DB.GetUserFollows(destId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		profile.Followers = append(followers, follows...)
 	}
 
 	out, _ := json.MarshalIndent(profile, "", "    ")

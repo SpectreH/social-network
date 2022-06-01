@@ -5,7 +5,7 @@
 <script>
 import GroupBase from "../components/GroupBase.vue" 
 export default {
-  name: "FollowRequestView",
+  name: "GroupBaseView",
   components: {
     GroupBase
   }

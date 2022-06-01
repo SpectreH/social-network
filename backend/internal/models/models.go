@@ -16,20 +16,21 @@ type User struct {
 }
 
 type UserProfile struct {
-	Id             int    `json:"id"`
-	FirstName      string `json:"firstName"`
-	LastName       string `json:"lastName"`
-	Email          string `json:"email"`
-	BirthDate      string `json:"birthDate"`
-	Nickname       string `json:"nickname"`
-	Avatar         string `json:"avatar"`
-	AboutMe        string `json:"aboutMe"`
-	Private        bool   `json:"private"`
-	Following      bool   `json:"following"`
-	IsMyProfile    bool   `json:"isMyProfile"`
-	TotalFollowers int    `json:"totalFollowers"`
-	TotalFollows   int    `json:"totalFollows"`
-	TotalPosts     int    `json:"totalPosts"`
+	Id             int      `json:"id"`
+	FirstName      string   `json:"firstName"`
+	LastName       string   `json:"lastName"`
+	Email          string   `json:"email"`
+	BirthDate      string   `json:"birthDate"`
+	Nickname       string   `json:"nickname"`
+	Avatar         string   `json:"avatar"`
+	AboutMe        string   `json:"aboutMe"`
+	Private        bool     `json:"private"`
+	Following      bool     `json:"following"`
+	IsMyProfile    bool     `json:"isMyProfile"`
+	TotalFollowers int      `json:"totalFollowers"`
+	TotalFollows   int      `json:"totalFollows"`
+	TotalPosts     int      `json:"totalPosts"`
+	Followers      []Follow `json:"followers"`
 }
 
 type Follow struct {
@@ -64,11 +65,16 @@ type FormValidationResponse struct {
 }
 
 type SocketMessage struct {
-	Avatar     string    `json:"avatar"`
-	Dest       string    `json:"dest"`
-	To         int       `json:"to"`
-	Source     int       `json:"from"`
-	SourceName string    `json:"fromName"`
-	Type       string    `json:"type"`
-	Date       time.Time `json:"date"`
+	Dest string `json:"dest"`
+
+	Avatar string `json:"avatar"`
+
+	To int `json:"to"`
+
+	Source     int    `json:"authorId"`
+	SourceName string `json:"author"`
+	Message    string `json:"sub"`
+
+	Type string    `json:"type"`
+	Date time.Time `json:"date"`
 }

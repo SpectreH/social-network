@@ -17,12 +17,12 @@
       </div>
       <div class="col-6 d-flex align-items-center justify-content-end">
         <a
-          href="javascript:void();"
+          @click="accept"
           class="me-3 btn btn-primary rounded"
           >Confirm</a
         >
         <a
-          href="javascript:void();"
+          @click="decline"
           class="me-3 btn btn-secondary rounded"
           >Decline</a
         >
@@ -32,12 +32,45 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+import axios from "axios";
 export default {
   name: "FollowRequest",
   props: { 
     request: {type: Object, default: () => {
       return {}
-    }}
+    }},
+    index: {type: Number}
+  },
+  methods: {
+    ...mapMutations({
+      removeRequest: "REMOVE_REQUEST"
+    }),
+
+    async accept() {
+      let response = await axios.get('api/acceptrequest', { params: { id: this.request.authorId, type: this.request.type }, withCredentials: true } );
+      this.parseResponse(response);
+    },
+    async decline() {
+      let response = await axios.get('api/declinerequest', { params: { id: this.request.authorId, type: this.request.type }, withCredentials: true } );
+      this.parseResponse(response);
+    },
+    parseResponse(response) {
+      if (response.data.ok === false) {
+        this.$toast.open({
+          message: response.data.message,
+          type: 'error',
+        });
+        return;
+      }
+
+      this.$toast.open({
+        message: response.data.message,
+        type: 'success',
+      });
+      
+      this.removeRequest(this.index);      
+    }
   }
 }
 </script>

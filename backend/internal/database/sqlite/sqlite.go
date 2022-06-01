@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"fmt"
+	"social-network/internal/config"
 	"social-network/internal/models"
 	"time"
 )
@@ -74,6 +75,8 @@ func (m *sqliteDBRepo) GetUserProfile(id int) (models.UserProfile, error) {
 		&profile.AboutMe, &profile.Avatar, &profile.Private,
 		&profile.TotalFollowers, &profile.TotalFollows, &profile.TotalPosts)
 
+	profile.Avatar = config.AVATAR_PATH_URL + profile.Avatar
+
 	return profile, err
 }
 
@@ -129,6 +132,38 @@ func (m *sqliteDBRepo) UnFollow(srcId, targetId int) error {
 	return err
 }
 
+// GetUserFollowRequests gets all follow requests of certain user
+func (m *sqliteDBRepo) GetUserFollowRequests(id int) ([]models.SocketMessage, error) {
+	var requests []models.SocketMessage
+
+	query := `SELECT fr.follow_from, u.first_name, u.last_name, upi.path, fr.follow_to, fr.requested_at FROM follow_requests fr
+	JOIN users u ON u.id = fr.follow_from
+	JOIN user_profile_images upi ON upi.user_id = fr.follow_from
+	WHERE fr.follow_to = $1;`
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil {
+		return requests, err
+	}
+
+	for rows.Next() {
+		var request models.SocketMessage
+		var fn, ln string
+
+		if rows.Scan(&request.Source, &fn, &ln, &request.Avatar, &request.To, &request.Date) != nil {
+			return requests, err
+		}
+
+		request.SourceName = fmt.Sprintf("%s %s", fn, ln)
+		request.Message = config.FOLLOW_REQUEST_MESSAGE
+		request.Avatar = config.AVATAR_PATH_URL + request.Avatar
+
+		requests = append(requests, request)
+	}
+
+	return requests, nil
+}
+
 // GetUserData gets information about user
 func (m *sqliteDBRepo) GetUserData(id int) (models.User, error) {
 	var user models.User
@@ -136,10 +171,72 @@ func (m *sqliteDBRepo) GetUserData(id int) (models.User, error) {
 	query := `select u.id, u.first_name, u.last_name, u.email, u.birth_date, u.nickname, u.about_me, upi.path, ups.private_account from users u 
 	JOIN user_profile_images upi ON upi.user_id = u.id 
 	JOIN user_privacy_settings ups ON ups.id = u.id 
-	where u.id = $1;`
+	where u.id  = $1;`
 	err := m.DB.QueryRow(query, id).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.BirthDate, &user.Nickname, &user.AboutMe, &user.Avatar, &user.Private)
 
+	user.Avatar = config.AVATAR_PATH_URL + user.Avatar
+
 	return user, err
+}
+
+// GetUserFollowers gets all user followers
+func (m *sqliteDBRepo) GetUserFollowers(id int) ([]models.Follow, error) {
+	var followers []models.Follow
+
+	query := `SELECT u.id, u.first_name, u.last_name, (SELECT COUNT(*) FROM followers WHERE user_id = f.follower_id), upi.path FROM followers f 
+	JOIN users u ON u.id = f.follower_id
+	JOIN user_profile_images upi ON upi.user_id = f.follower_id
+	WHERE f.user_id = $1;`
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil {
+		return followers, err
+	}
+
+	for rows.Next() {
+		var follower models.Follow
+
+		if rows.Scan(&follower.Id, &follower.FirstName, &follower.LastName, &follower.Followers, &follower.Avatar) != nil {
+			return followers, err
+		}
+
+		follower.Type = "follower"
+		follower.Avatar = config.AVATAR_PATH_URL + follower.Avatar
+
+		followers = append(followers, follower)
+	}
+
+	return followers, nil
+}
+
+// GetUserFollows gets all user follows
+func (m *sqliteDBRepo) GetUserFollows(id int) ([]models.Follow, error) {
+	var follows []models.Follow
+
+	query := `SELECT u.id, u.first_name, u.last_name, (SELECT COUNT(*) FROM followers WHERE user_id = f.follower_id), upi.path FROM followers f 
+	JOIN users u ON u.id = f.user_id
+	JOIN user_profile_images upi ON upi.user_id = f.user_id
+	WHERE f.follower_id = $1;`
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil {
+		return follows, err
+	}
+
+	for rows.Next() {
+		var follow models.Follow
+
+		if rows.Scan(&follow.Id, &follow.FirstName, &follow.LastName, &follow.Followers, &follow.Avatar) != nil {
+			return follows, err
+		}
+
+		follow.Type = "following"
+		follow.Avatar = config.AVATAR_PATH_URL + follow.Avatar
+
+		follows = append(follows, follow)
+	}
+
+	return follows, nil
 }
 
 // GetUserAvatar gets user's avatar path
@@ -186,6 +283,14 @@ func (m *sqliteDBRepo) CheckSessionExistence(token string) (int, error) {
 	}
 
 	return id, nil
+}
+
+// RemoveFollowRequest removes a follow request of certain user
+func (m *sqliteDBRepo) RemoveFollowRequest(sourceId, destId int) error {
+	query := `DELETE FROM follow_requests WHERE follow_from = $1 AND follow_to = $2`
+	_, err := m.DB.Exec(query, sourceId, destId)
+
+	return err
 }
 
 // UpdateSessionToken updates token to a new one for user

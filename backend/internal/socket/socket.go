@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+	"social-network/internal/config"
 	"social-network/internal/database"
 	"social-network/internal/database/sqlite"
 	"social-network/internal/models"
@@ -83,7 +84,7 @@ func (sr *SocketReader) startThread() {
 // broadcast sends message to user
 func (sr *SocketReader) broadcast(message models.SocketMessage) {
 	for _, g := range savedSocketReader {
-		if message.To == g.id || g == sr {
+		if message.To == g.id {
 			g.writeMsg(message)
 		}
 	}
@@ -114,7 +115,8 @@ func (sr *SocketReader) read() {
 		panic(err)
 	}
 
-	socketMessage.Avatar = avatar
+	socketMessage.Message = config.FOLLOW_REQUEST_MESSAGE
+	socketMessage.Avatar = config.AVATAR_PATH_URL + avatar
 	socketMessage.To = toId
 	socketMessage.Source = sr.id
 	socketMessage.SourceName = sr.name

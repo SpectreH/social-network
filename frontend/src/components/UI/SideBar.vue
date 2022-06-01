@@ -35,11 +35,6 @@ export default {
           to: "/"
         },
         {
-          header: "Profile",
-          icon: "las la-user",
-          to: "/user/1"
-        },
-        {
           header: "Chat",
           icon: "lab la-rocketchat",
           to: "/chat"

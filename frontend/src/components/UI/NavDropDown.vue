@@ -8,7 +8,7 @@
     :id="menuAttr.id"
   >
     <i :class="menuAttr.icon"></i>
-    <div v-if="menuAttr.elements.length !== 0" class="number-circle danger" style="font-size: 11px">{{ menuAttr.elements.length }}</div>
+    <div v-if="requests.length !== 0" class="number-circle danger" style="font-size: 11px">{{ requests.length }}</div>
   </a>
 
   <div :class="menuAttr.id === 'follow-drop' ? 'sub-drop-large' : _ " class="sub-drop dropdown-menu" :aria-labelledby="menuAttr.id">
@@ -17,23 +17,23 @@
         <div class="header-title bg-primary">
           <h5 class="mb-0 text-white">{{ menuAttr.title }}</h5>
         </div>
-        <small class="badge bg-light text-dark">{{ menuAttr.elements.length }}</small>
+        <small class="badge bg-light text-dark">{{ requests.length }}</small>
       </div>
       <div class="card-body p-0">
         <div v-if="menuAttr.id === 'notification-drop'">
-          <div v-for="(element, index) in menuAttr.elements" :key="index" href="#" class="iq-sub-card">
-            <NotificationMessage :notification="element" />
+          <div v-for="(request, index) in requests" :key="index" href="#" class="iq-sub-card">
+            <NotificationMessage :notification="request" />
           </div>
-          <div v-if="menuAttr.elements.length === 0">
+          <div v-if="requests.length === 0">
             <p class="text-center mb-0">You don't have any notification</p>     
           </div>
         </div>
 
         <div v-else-if="menuAttr.id === 'follow-drop'">
-          <div v-for="element in menuAttr.elements" :key="element.id" class="iq-follow-request">
-            <FollowRequest :request="element"/>
+          <div v-for="(request, index) in requests" :key="index.id" class="iq-follow-request">
+            <FollowRequest :request="request" :index="index"/>
           </div>
-          <div v-if="menuAttr.elements.length === 0">
+          <div v-if="requests.length === 0">
             <p class="text-center mb-0">You don't have any request</p>     
           </div>
         </div>
@@ -52,9 +52,11 @@ export default {
       return {
         id: "",
         icon: "",
-        title: "",
-        elements: [],
+        title: ""
       } 
+    }},
+    requests: {type: Array, default: () => {
+      return []
     }}
   },
   components: {

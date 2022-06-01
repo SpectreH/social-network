@@ -14,7 +14,7 @@
                 <div class="profile-img-edit">
                   <img
                     class="profile-pic rounded-circle"
-                    :src="'http://localhost:4000/images/' + form.avatar"
+                    :src="form.avatar"
                     alt="profile-pic"
                   />
                   <div class="p-image">
@@ -124,7 +124,6 @@ export default {
       handler(newVal) {
         for (const [key, value] of Object.entries(newVal)) {
           if (this.form[key] != value) {
-            console.log(this.form[key])
             this.submit = true;
             break;
           }

@@ -7,7 +7,7 @@
     aria-expanded="false"
     :id="accountAttr.id"
   >
-    <img :src="'http://localhost:4000/images/' + getAvatar()" class="img-fluid rounded-circle me-3" alt="user" />
+    <img :src="getAvatar()" class="img-fluid rounded-circle me-3" alt="user" />
     <div class="caption">
       <h6 class="mb-0 line-height">{{ accountAttr.name }}</h6>
     </div>

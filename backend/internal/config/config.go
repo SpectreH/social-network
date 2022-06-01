@@ -11,4 +11,6 @@ const (
 	SESSION_EXPIRATION_TIME = 1200 * time.Second
 	AVATAR_SAVE_PATH        = "./images/"
 	DEFAULT_AVATAR          = "default_avatar.png"
+	AVATAR_PATH_URL         = "http://localhost:4000/images/"
+	FOLLOW_REQUEST_MESSAGE  = "Wants to be your follower"
 )

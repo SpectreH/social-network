@@ -11,9 +11,13 @@ type DatabaseRepo interface {
 	GetUserAvatar(id int) (string, error)
 	GetUserProfile(id int) (models.UserProfile, error)
 	GetUserFullName(id int) (string, error)
+	GetUserFollowRequests(id int) ([]models.SocketMessage, error)
 	FollowUser(srcId, targetId int) error
 	UnFollow(srcId, targetId int) error
 	InsertUserFollowRequest(srcId, targetId int) error
+	RemoveFollowRequest(sourceId, destId int) error
+	GetUserFollowers(id int) ([]models.Follow, error)
+	GetUserFollows(id int) ([]models.Follow, error)
 	CheckFollowRequest(srcId, targetId int) (int, error)
 	CheckProfileIsPivate(id int) (bool, error)
 	CheckAlreadyFollowed(srcId, targetId int) (int, error)

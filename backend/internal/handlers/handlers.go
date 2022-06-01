@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"social-network/internal/config"
 	"social-network/internal/database"
 	"social-network/internal/database/sqlite"
 	"social-network/internal/socket"
+	"strconv"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -71,4 +73,19 @@ func createSessionToken(w http.ResponseWriter) string {
 	})
 
 	return sessionToken
+}
+
+func getIdFromQuery(r *http.Request) (int, error) {
+	queries := r.URL.Query()
+	strId := queries.Get("id")
+	if strId == "" {
+		return 0, errors.New("Profile with this id doesn't exist!")
+	}
+
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		return 0, errors.New("Profile with this id doesn't exist!")
+	}
+
+	return id, err
 }

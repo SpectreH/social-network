@@ -8,9 +8,9 @@
     <div class="card-body">
         <ul class="request-list list-inline m-0 p-0">
           <li v-for="(request, index) of getRequests" :key="index" class="d-flex align-items-center flex-wrap">
-            <FollowRequest :request="request" />
+            <FollowRequest :request="request" :index="index" />
           </li>
-          <li v-if="!getRequests" class="d-block text-center mb-0 pb-0">
+          <li v-if="getRequests.length === 0" class="d-block text-center mb-0 pb-0">
             <p class="me-3 mb-0">You don't have any request</p>
           </li>
         </ul>
