@@ -22,7 +22,7 @@ func (m *Repository) AcceptRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := m.DB.CheckAlreadyFollowed(sourceId, uid)
+	res, err := m.DB.CheckAlreadyUserFollowed(sourceId, uid)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -1,32 +1,35 @@
 <template>
-  <div class="col-lg-12">
-    <GroupHeader/>
+  <div v-if="group.id">
+    <div class="col-lg-12">
+      <GroupHeader @follow="follow" @unfollow="unfollow" :group="group"/>
+    </div>
+
+    <div v-if="group.isFollowing"  class="row p-0">
+      <div class="col-lg-8">
+        <CreatePost groupPost/>
+        <router-link v-for="postData in showPosts" :key="postData.post.id" :to="'/post/' + postData.post.id" style="text-decoration: none; color: inherit;">
+          <PostContent :postData="postData"/>
+        </router-link>
+      </div>
+
+      <div class="col-lg-4">
+        <GroupAbout :group="group"/>
+        <GroupEventsFeed/>
+      </div>
+    </div>
+
+    <div v-if="(group.private && !group.isFollowing) || !group.isFollowing" class="row p-0">
+      <div class="col-lg-8 d-flex align-items-center">
+        <h2 v-if="group.private" class="text-center"><i class="ri-lock-fill h2 me-3"></i>Group is private. Make a request to join.</h2>
+        <h2 v-else class="text-center">Follow the group to see what is inside</h2>
+      </div>
+
+      <div class="col-lg-4">
+        <GroupAbout :group="group"/>
+      </div>
+    </div>
   </div>
-
-  <div class="row p-0">
-    <div class="col-lg-8">
-      <CreatePost groupPost/>
-      <router-link to="/post/1" style="text-decoration: none; color: inherit;">
-        <PostContent/>
-      </router-link>
-    </div>
-
-    <div class="col-lg-4">
-      <GroupAbout/>
-      <GroupEventsFeed/>
-    </div>
-  </div>
-
-  <div class="row p-0">
-    <div class="col-lg-8">
-      <h2 class="text-center"><i class="ri-lock-fill h2 me-3"></i>Group is private. Make a request to join.</h2>
-    </div>
-
-    <div class="col-lg-4">
-      <GroupAbout/>
-    </div>
-  </div>
-
+  <h2 v-if="group.ok === false" class="text-center mb-0">Group not found</h2>
 </template>
 
 <script>
@@ -35,6 +38,7 @@ import GroupAbout from "./UI/GroupAbout.vue"
 import GroupHeader from "./UI/GroupHeader.vue"
 import CreatePost from "./UI/CreatePost.vue"
 import PostContent from "./UI/PostContent.vue"
+import axios from "axios";
 export default {
   name: "GroupBase",
   components: {
@@ -43,6 +47,47 @@ export default {
     GroupEventsFeed,
     CreatePost,
     PostContent
+  },
+  props: {
+    groupId: {type: String, default: "0"}
+  },
+  data() {
+    return {
+      group: {},
+      postsToShow: 5
+    }
+  },
+  watch: {
+    groupId: {
+      handler() {
+        this.fetchGroupProfile()
+      }
+    }
+  },
+  computed: {
+    showPosts() {
+      if (!this.group.posts) {
+        return []
+      }
+
+      return this.group.posts.slice(0, this.postsToShow) 
+    }
+  },
+  async created() {
+    this.fetchGroupProfile()
+  },
+  methods: {
+    async fetchGroupProfile() {
+      let response = await axios.get('api/group', { params: { id: this.groupId }, withCredentials: true } );
+      this.group = response.data;
+      console.log(this.group)
+    },
+    follow() {
+      this.group.isFollowing = true;
+    },
+    unfollow() {
+      this.group.isFollowing = false;
+    }
   }
 }
 </script>

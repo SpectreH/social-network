@@ -185,7 +185,7 @@ func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if response.OK {
-		res, err := m.DB.CheckAlreadyFollowed(uid, destId)
+		res, err := m.DB.CheckAlreadyUserFollowed(uid, destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -252,7 +252,7 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 		profile.IsMyProfile = true
 	}
 
-	res, err := m.DB.CheckAlreadyFollowed(uid, destId)
+	res, err := m.DB.CheckAlreadyUserFollowed(uid, destId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -275,7 +275,7 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		posts, err := m.DB.GetAllPosts(destId)
+		posts, err := m.DB.GetAllPosts(destId, 0)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

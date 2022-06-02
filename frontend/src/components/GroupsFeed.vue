@@ -4,9 +4,9 @@
       <a class="search-link h-100 d-flex align-items-center" href="#"><i class="ri-search-line"></i></a>
       <input v-model="search" type="text" class="text search-input" placeholder="Search group here...">
     </form>
-    <button class="btn btn-primary d-block"  data-bs-toggle="modal" data-bs-target="#newGroupModal">Create Group</button>
+    <button class="btn btn-primary d-block" @click="openModal">Create Group</button>
   </div>
-  <NewGroupModal :modalId="'newGroupModal'" />
+  <NewGroupModal :modalId="'newGroupModal'" @closeModal="closeModal" />
 
   <div class="d-grid gap-3 d-grid-template-1fr-19">
     <div v-for="group of filteredGroups" :key="group.id" class="card">
@@ -19,6 +19,8 @@
 <script>
 import GroupOverview from "./UI/GroupOverview.vue"
 import NewGroupModal from "./UI/NewGroupModal.vue"
+import bootstrapMin from 'bootstrap/dist/js/bootstrap.min';
+import axios from "axios";
 export default {
   name: 'NewsFeed',
   components: {
@@ -27,26 +29,8 @@ export default {
   },
   data: () => ({    
     search: "",
-    groups: [
-      {
-        id: "1",
-        owner: "1",
-        type: "public",
-        title: "For Designers",
-        image: "https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/page-img/gi-1.jpg",
-        posts: 100,
-        members: 100,
-      },
-      {
-        id: "2",
-        owner: "2",
-        type: "public",
-        title: "Test",
-        image: "https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/page-img/gi-1.jpg",
-        posts: 5,
-        members: 5,
-      },
-    ]
+    modal: null,
+    groups: []
   }),
   computed: {
     filteredGroups() {
@@ -54,6 +38,21 @@ export default {
         return group.title.toLowerCase().includes(this.search.toLowerCase())
       })
     }
-  }
+  },
+  async created() {
+    let response = await axios.get("api/allgroups", { withCredentials: true} );
+    this.groups = response.data
+  },
+  mounted() {
+    this.modal = new bootstrapMin.Modal(document.getElementById("newGroupModal"));
+  },
+  methods: {
+    openModal() {
+      this.modal.show()
+    },
+    closeModal() {
+      this.modal.hide()
+    }
+  }  
 }
 </script>

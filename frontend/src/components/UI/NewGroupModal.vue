@@ -16,10 +16,12 @@
         <div class="modal-body">
           <div class="d-flex justify-content-center">
             <div class="profile-img-edit">
-              <img class="profile-pic" src="https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/11.png" alt="profile-pic">
+              <img class="profile-pic rounded-circle" :src="!groupAvatarCreated ? groupAvatarDefault : groupAvatarCreated" alt="profile-pic">
               <div class="p-image">
-                <i class="ri-pencil-line upload-button text-white"></i>
-                <input class="file-upload" type="file" accept="image/*">
+                <label for="new-image" style="width: inherit; cursor: pointer;">
+                  <i class="ri-pencil-line upload-button text-white"></i>
+                </label>
+                <input type="file" id="new-image" accept="image/png, image/gif, image/jpeg" ref="avatar-input" @change="updatePicture" style="display: none;">
               </div>
             </div>
           </div>
@@ -70,7 +72,7 @@
           </div>
         </div>
         <div class="modal-footer justify-content-center">
-          <button type="button" class="col-4 btn btn-primary">Create</button>
+          <button type="button" class="col-4 btn btn-primary" @click="submit">Create</button>
         </div>
       </div>
     </div>
@@ -78,13 +80,17 @@
 </template>
 
 <script>
+import axios from "axios"
 export default {
   name: "NewGroupModal",
   props: {
     modalId: {type: String, default: ""}
   },
-  data: () => ({    
+  data: () => ({   
+    groupAvatarDefault: "http://localhost:4000/images/default_avatar.png",
+    groupAvatarCreated: "", 
     newGroup: {
+      groupAvatar: null,
       title: "",
       currentShareSettings: 0,
       description: "",
@@ -115,6 +121,77 @@ export default {
       textarea.style.height = "";
       textarea.style.height = Math.min(textarea.scrollHeight, limit) + "px";
     };
+  },
+  methods: {
+    async submit() {
+      if (!this.newGroup.title) {
+        this.$toast.open({
+          message: 'Please fill group title!',
+          type: 'error',
+        });
+        return;
+      }
+
+      if (!this.newGroup.description) {
+        this.$toast.open({
+          message: 'Please fill group description!',
+          type: 'error',
+        });
+        return;
+      }
+
+      let response = await axios.post("api/group/new", this.newGroup, { 
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data"
+        } 
+      });
+
+      if (response.data.ok === true) {
+        this.$toast.open({
+          message: response.data.message,
+          type: 'success',
+        });
+
+        this.$emit('closeModal')
+
+        this.$router.push(response.data.data)
+      }
+    },
+    updatePicture(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+
+      const file = files[0]
+
+      const [extension] = file.type.split("/")
+      if ((!(extension == "image"))) {
+        this.$toast.open({
+          message: 'Only images allowed to upload!',
+          type: 'error',
+        });
+        e.target.value = null;
+        this.newGroup.groupAvatar = null;
+        this.groupAvatarCreated = "";       
+        return
+      }
+
+      if (file.size > 2048000) { // 2 MB
+        this.$toast.open({
+          message: 'Image size must be less than 2 MB!',
+          type: 'error',
+        });
+        e.target.value = null;
+        this.newGroup.groupAvatar = null;
+        this.groupAvatarCreated = "";        
+        return
+      }
+
+      this.newGroup.groupAvatar = file;
+      this.groupAvatarCreated = URL.createObjectURL(this.newGroup.groupAvatar);
+    }
   }    
 }
 </script>

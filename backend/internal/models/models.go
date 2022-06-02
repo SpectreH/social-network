@@ -34,6 +34,45 @@ type UserProfile struct {
 	Posts          []PostInside `json:"posts"`
 }
 
+type Chat struct {
+	Id        int  `json:"id"`
+	GroupChat bool `json:"groupChat"`
+}
+
+type Group struct {
+	Id             int          `json:"id"`
+	ChatId         int          `json:"chatId"`
+	CreatorId      int          `json:"creatorId"`
+	Picture        string       `json:"picture"`
+	Title          string       `json:"title"`
+	Description    string       `json:"description"`
+	Private        bool         `json:"private"`
+	CreatedAt      time.Time    `json:"createdAt"`
+	TotalFollowers int          `json:"totalFollowers"`
+	TotalPosts     int          `json:"totalPosts"`
+	Following      bool         `json:"isFollowing"`
+	IsMyGroup      bool         `json:"isMyGroup"`
+	Events         []Event      `json:"events"`
+	Posts          []PostInside `json:"posts"`
+}
+
+type Event struct {
+	Id           int                 `json:"id"`
+	GroupId      int                 `json:"groupId"`
+	Title        string              `json:"title"`
+	Description  string              `json:"description"`
+	Date         time.Time           `json:"date"`
+	CreatedAt    time.Time           `json:"createdAt"`
+	Participants []EventParticipants `json:"participants"`
+}
+
+type EventParticipants struct {
+	Id            int  `json:"id"`
+	ParticipantId int  `json:"participantId"`
+	EventId       int  `json:"eventId"`
+	WillAttend    bool `json:"willAttend"`
+}
+
 type Follow struct {
 	Id        int    `json:"id"`
 	FirstName string `json:"firstName"`

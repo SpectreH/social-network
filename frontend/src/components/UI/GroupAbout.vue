@@ -9,7 +9,7 @@
       <ul class="list-inline p-0 m-0">
         <li>
           <h6>Description:</h6>
-          <p class="mb-0">Developer's Group...</p>
+          <p class="mb-0">{{ group.description }}</p>
         </li>
         <hr class="m-2 mx-0 me-0">
         <li>
@@ -17,10 +17,10 @@
             <h6>Status: </h6>
             <div class="d-flex gap-1 align-items-center">
               <div class="flex-shrink-0">
-                <i class="ri-lock-fill h4"></i>
+                <i v-if="group.private" class="ri-lock-fill h4"></i>
               </div>
               <div class="flex-grow-1">
-                <h6>Private</h6>
+                <h6>{{ group.private ? "Private" : "Public"}}</h6>
               </div>
             </div>
           </div>
@@ -32,7 +32,10 @@
 
 <script>
 export default {
-  name: "GroupAbout"
+  name: "GroupAbout",
+  props: {
+    group: {type: Object}
+  },
 }
 </script>
 

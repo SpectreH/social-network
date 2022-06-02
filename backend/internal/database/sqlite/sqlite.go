@@ -98,6 +98,14 @@ func (m *sqliteDBRepo) GetUserProfile(id int) (models.UserProfile, error) {
 	return profile, err
 }
 
+// InsertGroupFollowRequest inserts group's follow request with status pending
+func (m *sqliteDBRepo) InsertGroupFollowRequest(gid, creatorid, uid int, invite bool) error {
+	query := `insert into group_follow_requests (request_status_id, group_id, creator_id, user_id, invite, requested_at) values ($1, $2, $3, $4, $5, $6);`
+	_, err := m.DB.Exec(query, 1, gid, creatorid, uid, invite, time.Now())
+
+	return err
+}
+
 // InsertUserFollowRequest inserts uses's follow request with status pending
 func (m *sqliteDBRepo) InsertUserFollowRequest(srcId, targetId int) error {
 	query := `insert into follow_requests (request_status_id, follow_from, follow_to, requested_at) values ($1, $2, $3, $4);`
@@ -132,6 +140,34 @@ func (m *sqliteDBRepo) InsertPostPicture(id int, path string) error {
 	return err
 }
 
+// InsertChat inserts new chat
+func (m *sqliteDBRepo) InsertChat(groupChat bool) (int, error) {
+	var id int
+
+	query := `insert into chats (group_chat) values ($1) returning id;`
+	err := m.DB.QueryRow(query, groupChat).Scan(&id)
+
+	return id, err
+}
+
+// InsertGroup inserts new group
+func (m *sqliteDBRepo) InsertGroup(group models.Group) (int, error) {
+	var id int
+
+	query := `insert into groups (chat_id, creator_id, title, description, private, created_at) values ($1, $2, $3, $4, $5, $6) returning id;`
+	err := m.DB.QueryRow(query, group.ChatId, group.CreatorId, group.Title, group.Description, group.Private, group.CreatedAt).Scan(&id)
+
+	return id, err
+}
+
+// InsertGroupPicture inserts group picture
+func (m *sqliteDBRepo) InsertGroupPicture(id int, path string) error {
+	query := `insert into group_images (group_id, path) values ($1, $2);`
+	_, err := m.DB.Exec(query, id, path)
+
+	return err
+}
+
 // CheckPostAccessibility checks if user has access to see certain post
 func (m *sqliteDBRepo) CheckPostAccessibility(userId int, post models.Post) (bool, error) {
 	var res int
@@ -158,6 +194,15 @@ func (m *sqliteDBRepo) CheckPostAccessibility(userId int, post models.Post) (boo
 	}
 }
 
+// CheckGroupRequest checks if follow request already exists
+func (m *sqliteDBRepo) CheckGroupRequest(uid, gid int) (int, error) {
+	var res int
+	query := `select COUNT(*) from group_follow_requests WHERE user_id = $1 AND group_id = $2;`
+	err := m.DB.QueryRow(query, uid, gid).Scan(&res)
+
+	return res, err
+}
+
 // CheckFollowRequest checks if follow request already exists
 func (m *sqliteDBRepo) CheckFollowRequest(srcId, targetId int) (int, error) {
 	var res int
@@ -167,7 +212,17 @@ func (m *sqliteDBRepo) CheckFollowRequest(srcId, targetId int) (int, error) {
 	return res, err
 }
 
-// CheckProfileIsPivate chekcs if user has private account
+// CheckGroupIsPivate checks if group has private group
+func (m *sqliteDBRepo) CheckGroupIsPivate(id int) (bool, error) {
+	var res bool
+
+	query := `select g.private from groups g where g.id = $1;`
+	err := m.DB.QueryRow(query, id).Scan(&res)
+
+	return res, err
+}
+
+// CheckProfileIsPivate checks if user has private account
 func (m *sqliteDBRepo) CheckProfileIsPivate(id int) (bool, error) {
 	var res bool
 
@@ -177,13 +232,38 @@ func (m *sqliteDBRepo) CheckProfileIsPivate(id int) (bool, error) {
 	return res, err
 }
 
-// CheckAlreadyFollowed chekcs if user already followed certain user
-func (m *sqliteDBRepo) CheckAlreadyFollowed(srcId, targetId int) (int, error) {
+// CheckAlreadyGroupFollowed checks if user already followed certain group
+func (m *sqliteDBRepo) CheckAlreadyGroupFollowed(uid, gid int) (int, error) {
+	var res int
+	query := `select COUNT(*) from group_membership WHERE user_id = $1 AND group_id = $2;`
+	err := m.DB.QueryRow(query, uid, gid).Scan(&res)
+
+	return res, err
+}
+
+// CheckAlreadyUserFollowed checks if user already followed certain user
+func (m *sqliteDBRepo) CheckAlreadyUserFollowed(srcId, targetId int) (int, error) {
 	var res int
 	query := `select COUNT(*) from followers WHERE follower_id = $1 AND user_id = $2;`
 	err := m.DB.QueryRow(query, srcId, targetId).Scan(&res)
 
 	return res, err
+}
+
+// FollowGroup makes a record with follow
+func (m *sqliteDBRepo) FollowGroup(uid, gid int) error {
+	query := `insert into group_membership (user_id, group_id, joined_at) values ($1, $2, $3);`
+	_, err := m.DB.Exec(query, uid, gid, time.Now())
+
+	return err
+}
+
+// GroupUnFollow deletes record about following
+func (m *sqliteDBRepo) GroupUnFollow(uid, gid int) error {
+	query := `delete from group_membership where user_id = $1 AND group_id = $2;`
+	_, err := m.DB.Exec(query, uid, gid)
+
+	return err
 }
 
 // FollowUser makes a record with follow
@@ -229,23 +309,59 @@ func (m *sqliteDBRepo) GetPost(id int) (models.Post, error) {
 	return res, err
 }
 
-// GetAllPosts gets all posts from database (option: of certain user)
-func (m *sqliteDBRepo) GetAllPosts(userID int) ([]models.Post, error) {
+// GetGroup gets all data about group
+func (m *sqliteDBRepo) GetGroup(id int) (models.Group, error) {
+	var group models.Group
+
+	query := `SELECT g.id, g.chat_id, g.creator_id, g.title, g.description, g.private, gi.path, 
+	(SELECT COUNT(*) FROM posts p WHERE p.group_id = g.id), 
+	(SELECT COUNT(*) FROM group_membership gm WHERE gm.group_id = g.id), g.created_at 
+	FROM groups g
+	JOIN group_images gi ON gi.group_id = g.id
+	WHERE g.id = $1;`
+
+	err := m.DB.QueryRow(query, id).Scan(&group.Id, &group.ChatId, &group.CreatorId, &group.Title, &group.Description, &group.Private, &group.Picture, &group.TotalPosts, &group.TotalFollowers, &group.CreatedAt)
+
+	group.Picture = config.AVATAR_PATH_URL + group.Picture
+
+	return group, err
+}
+
+// GetAllGroups gets all groups from database
+func (m *sqliteDBRepo) GetAllGroups() ([]models.Group, error) {
+	var groups []models.Group
+
+	query := `SELECT g.id, g.chat_id, g.creator_id, g.title, g.description, g.private, gi.path, (SELECT COUNT(*) FROM posts p WHERE p.group_id = g.id), (SELECT COUNT(*) FROM group_membership gm WHERE gm.group_id = g.id), g.created_at FROM groups g
+	JOIN group_images gi ON gi.group_id = g.id`
+
+	rows, err := m.DB.Query(query)
+	if err != nil && err != sql.ErrNoRows {
+		return groups, err
+	}
+
+	for rows.Next() {
+		var group models.Group
+
+		if rows.Scan(&group.Id, &group.ChatId, &group.CreatorId, &group.Title, &group.Description, &group.Private, &group.Picture, &group.TotalPosts, &group.TotalFollowers, &group.CreatedAt) != nil {
+			return groups, err
+		}
+
+		group.Picture = config.AVATAR_PATH_URL + group.Picture
+
+		groups = append(groups, group)
+	}
+
+	return groups, err
+}
+
+// GetAllPosts gets all posts from database (option: of certain user or group)
+func (m *sqliteDBRepo) GetAllPosts(userID, groupId int) ([]models.Post, error) {
 	var posts []models.Post
 
 	var rows *sql.Rows
 	var err error
 
-	if userID == 0 {
-		query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
-		JOIn post_images pi ON pi.post_id = p.id
-		JOIn users u ON u.id = p.user_id
-		JOIn user_profile_images ufi ON ufi.user_id = p.user_id
-		Left OUTER JOIN groups g ON g.id = p.group_id
-		Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
-		ORDER BY p.created_at DESC;`
-		rows, err = m.DB.Query(query)
-	} else {
+	if userID != 0 {
 		query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
 		JOIn post_images pi ON pi.post_id = p.id
 		JOIn users u ON u.id = p.user_id
@@ -255,6 +371,25 @@ func (m *sqliteDBRepo) GetAllPosts(userID int) ([]models.Post, error) {
 		WHERE p.user_id = $1
 		ORDER BY p.created_at DESC;`
 		rows, err = m.DB.Query(query, userID)
+	} else if groupId != 0 {
+		query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+		JOIn post_images pi ON pi.post_id = p.id
+		JOIn users u ON u.id = p.user_id
+		JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+		Left OUTER JOIN groups g ON g.id = p.group_id
+		Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
+		WHERE p.group_id = $1
+		ORDER BY p.created_at DESC;`
+		rows, err = m.DB.Query(query, groupId)
+	} else {
+		query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+		JOIn post_images pi ON pi.post_id = p.id
+		JOIn users u ON u.id = p.user_id
+		JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+		Left OUTER JOIN groups g ON g.id = p.group_id
+		Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
+		ORDER BY p.created_at DESC;`
+		rows, err = m.DB.Query(query)
 	}
 
 	if err != nil && err != sql.ErrNoRows {

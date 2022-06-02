@@ -14,22 +14,33 @@ type DatabaseRepo interface {
 	GetUserProfile(id int) (models.UserProfile, error)
 	GetUserFullName(id int) (string, error)
 	GetUserFollowRequests(id int) ([]models.SocketMessage, error)
+	GetAllGroups() ([]models.Group, error)
 	GetPost(id int) (models.Post, error)
+	GetGroup(id int) (models.Group, error)
+	CheckGroupIsPivate(id int) (bool, error)
 	GetPostComments(id int) ([]models.Comment, error)
-	GetAllPosts(userID int) ([]models.Post, error)
+	GetAllPosts(userID, groupId int) ([]models.Post, error)
 	FollowUser(srcId, targetId int) error
+	FollowGroup(uid, gid int) error
+	GroupUnFollow(uid, gid int) error
 	UnFollow(srcId, targetId int) error
 	CheckPostAccessibility(userId int, post models.Post) (bool, error)
 	InsertUserFollowRequest(srcId, targetId int) error
+	InsertGroupFollowRequest(gid, creatorid, uid int, invite bool) error
 	InsertPostShare(userId, postId int) error
 	InsertPost(post models.Post) (int, error)
 	InsertPostPicture(id int, path string) error
+	InsertChat(groupChat bool) (int, error)
+	InsertGroup(group models.Group) (int, error)
+	InsertGroupPicture(id int, path string) error
 	RemoveFollowRequest(sourceId, destId int) error
 	GetUserFollowers(id int) ([]models.Follow, error)
 	GetUserFollows(id int) ([]models.Follow, error)
 	CheckFollowRequest(srcId, targetId int) (int, error)
+	CheckGroupRequest(uid, gid int) (int, error)
 	CheckProfileIsPivate(id int) (bool, error)
-	CheckAlreadyFollowed(srcId, targetId int) (int, error)
+	CheckAlreadyUserFollowed(srcId, targetId int) (int, error)
+	CheckAlreadyGroupFollowed(uid, gid int) (int, error)
 	CheckEmailExistence(email string) (int, error)
 	CheckSessionExistence(token string) (int, error)
 	UpdateSessionToken(token string, id int) error
