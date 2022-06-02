@@ -14,6 +14,8 @@ type DatabaseRepo interface {
 	GetUserProfile(id int) (models.UserProfile, error)
 	GetUserFullName(id int) (string, error)
 	GetUserFollowRequests(id int) ([]models.SocketMessage, error)
+	GetGroupFollowRequests(id int) ([]models.SocketMessage, error)
+	RemoveGroupFollowRequest(gid, sourceId int) error
 	GetAllGroups() ([]models.Group, error)
 	GetPost(id int) (models.Post, error)
 	GetGroup(id int) (models.Group, error)
@@ -41,6 +43,7 @@ type DatabaseRepo interface {
 	CheckProfileIsPivate(id int) (bool, error)
 	CheckAlreadyUserFollowed(srcId, targetId int) (int, error)
 	CheckAlreadyGroupFollowed(uid, gid int) (int, error)
+	CheckGroupInvite(uid, gid int) (int, error)
 	CheckEmailExistence(email string) (int, error)
 	CheckSessionExistence(token string) (int, error)
 	UpdateSessionToken(token string, id int) error

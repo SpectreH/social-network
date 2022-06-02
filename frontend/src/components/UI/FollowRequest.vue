@@ -48,11 +48,25 @@ export default {
     }),
 
     async accept() {
-      let response = await axios.get('api/acceptrequest', { params: { id: this.request.authorId, type: this.request.type }, withCredentials: true } );
+      if (this.request.type == "followRequest") {
+        var response = await axios.get('api/acceptrequest', { params: { id: this.request.authorId, type: this.request.type }, withCredentials: true } );
+      } else if (this.request.type == "groupFollowRequest") {
+        response = await axios.get('api/groupacceptrequest', { params: { id: this.request.authorId, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
+      } else if (this.request.type == "inviteRequest") {
+        response = await axios.get('api/groupacceptrequest', { params: { id: this.request.dest, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
+      }
+
       this.parseResponse(response);
     },
     async decline() {
-      let response = await axios.get('api/declinerequest', { params: { id: this.request.authorId, type: this.request.type }, withCredentials: true } );
+      if (this.request.type == "followRequest") {
+        var response = await axios.get('api/declinerequest', { params: { id: this.request.authorId, type: this.request.type }, withCredentials: true } );
+      } else if (this.request.type == "groupFollowRequest") {
+        response = await axios.get('api/groupdeclinerequest', { params: { id: this.request.authorId, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
+      } else if (this.request.type == "inviteRequest") {
+        response = await axios.get('api/groupdeclinerequest', { params: { id: this.request.dest, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
+      }
+
       this.parseResponse(response);
     },
     parseResponse(response) {

@@ -11,6 +11,10 @@ export default ({
       return state.token && state.user;
     },
 
+    id(state) {
+      return state.user.id;
+    },
+
     user(state) {
       return state.user;
     },

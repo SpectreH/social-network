@@ -16,7 +16,7 @@ func (m *Repository) ProfileRequestToFollow(w http.ResponseWriter, r *http.Reque
 		OK: true,
 	}
 
-	destId, err := getIdFromQuery(r)
+	destId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -72,7 +72,7 @@ func (m *Repository) ProfileRemoveFollow(w http.ResponseWriter, r *http.Request)
 		OK: true,
 	}
 
-	sourceId, err := getIdFromQuery(r)
+	sourceId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -113,7 +113,7 @@ func (m *Repository) ProfileUnFollow(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	destId, err := getIdFromQuery(r)
+	destId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -154,7 +154,7 @@ func (m *Repository) ProfileFollow(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	destId, err := getIdFromQuery(r)
+	destId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -225,7 +225,7 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	destId, err := getIdFromQuery(r)
+	destId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,

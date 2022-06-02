@@ -70,6 +70,17 @@
               </div>
             </div>
           </div>
+          <hr>
+
+          <div class="share-option">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <h6>Choose the followers to invite</h6>
+              </div>
+              <SelectionDropDown :selectionAttr="selectionDD"/>
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer justify-content-center">
           <button type="button" class="col-4 btn btn-primary" @click="submit">Create</button>
@@ -81,10 +92,14 @@
 
 <script>
 import axios from "axios"
+import SelectionDropDown from "./SelectionDropDown.vue"
 export default {
   name: "NewGroupModal",
   props: {
     modalId: {type: String, default: ""}
+  },
+  components: {
+    SelectionDropDown
   },
   data: () => ({   
     groupAvatarDefault: "http://localhost:4000/images/default_avatar.png",
@@ -94,6 +109,7 @@ export default {
       title: "",
       currentShareSettings: 0,
       description: "",
+      invites: [],
     },
     shareSettings: [
       {
@@ -107,7 +123,21 @@ export default {
         icon: "ri-lock-line",
       }
     ],
+    selectionDD: {
+      label: "Followers",
+      elements: []
+    }
   }),
+  async created() {
+    let response = await axios.get('api/followers', { withCredentials: true } );
+
+    if (!response.data) {
+      this.selectionDD.elements = [];
+      return
+    }
+
+    this.selectionDD.elements = response.data;
+  },
   computed: {
     setShareSettingType() {
       return this.shareSettings[this.newGroup.currentShareSettings].type
@@ -140,6 +170,12 @@ export default {
         return;
       }
 
+      let invites = this.selectionDD.elements.filter(e => {
+        return e.selected
+      })
+
+      this.newGroup.invites = JSON.stringify(invites);
+
       let response = await axios.post("api/group/new", this.newGroup, { 
         withCredentials: true,
         headers: {
@@ -153,9 +189,17 @@ export default {
           type: 'success',
         });
 
-        this.$emit('closeModal')
+        invites.forEach(e => {
+          this.$socket.send(JSON.stringify({
+            dest: e.id,
+            groupName: this.newGroup.title,
+            groupId: parseInt(response.data.data),
+            type: "inviteRequest" 
+          }))         
+        })
 
-        this.$router.push(response.data.data)
+        this.$emit('closeModal')
+        this.$router.push("/group/" + response.data.data)
       }
     },
     updatePicture(e) {

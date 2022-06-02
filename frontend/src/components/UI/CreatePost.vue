@@ -30,7 +30,7 @@
         </div>
         <hr />
       </div>
-      <NewPostModal :modalId="'postModal'" :groupPost="groupPost" @closeModal="closeModal"/>
+      <NewPostModal :modalId="'postModal'" :groupPost="groupPost" :groupId="groupId" @closeModal="closeModal"/>
     </div>
   </div>
 </template>
@@ -45,7 +45,8 @@ export default {
     NewPostModal
   },
   props: {
-    groupPost: {type: Boolean, default: false}
+    groupPost: {type: Boolean, default: false},
+    groupId: {type: String, default: ""}
   },
   data() {
     return {

@@ -61,7 +61,7 @@ func (m *Repository) GetPostContent(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	pid, err := getIdFromQuery(r)
+	pid, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -219,7 +219,6 @@ func (m *Repository) PostNew(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		_ = groupId
 	}
 
 	shareId, err := strconv.Atoi(r.Form.Get("postShare"))

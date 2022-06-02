@@ -1,12 +1,12 @@
 <template>
   <div v-if="group.id">
     <div class="col-lg-12">
-      <GroupHeader @follow="follow" @unfollow="unfollow" :group="group"/>
+      <GroupHeader @follow="follow" @unfollow="unfollow" @invite="invite" :group="group"/>
     </div>
 
     <div v-if="group.isFollowing"  class="row p-0">
       <div class="col-lg-8">
-        <CreatePost groupPost/>
+        <CreatePost groupPost :groupId="groupId"/>
         <router-link v-for="postData in showPosts" :key="postData.post.id" :to="'/post/' + postData.post.id" style="text-decoration: none; color: inherit;">
           <PostContent :postData="postData"/>
         </router-link>
@@ -49,7 +49,7 @@ export default {
     PostContent
   },
   props: {
-    groupId: {type: String, default: "0"}
+    groupId: {type: String, default: ""}
   },
   data() {
     return {
@@ -87,6 +87,9 @@ export default {
     },
     unfollow() {
       this.group.isFollowing = false;
+    },
+    invite() {
+      this.group.invite = false;
     }
   }
 }

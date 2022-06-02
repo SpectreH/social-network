@@ -75,9 +75,9 @@ func createSessionToken(w http.ResponseWriter) string {
 	return sessionToken
 }
 
-func getIdFromQuery(r *http.Request) (int, error) {
+func getIdFromQuery(r *http.Request, queryName string) (int, error) {
 	queries := r.URL.Query()
-	strId := queries.Get("id")
+	strId := queries.Get(queryName)
 	if strId == "" {
 		return 0, errors.New("Page with this id doesn't exist!")
 	}

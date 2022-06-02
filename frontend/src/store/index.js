@@ -27,6 +27,14 @@ export default createStore({
     REMOVE_REQUEST(state, index) {
       state.requests.splice(index, 1)
     },
+    REMOVE_REQUEST_BY_ID(state, id) {
+      for (let i = 0; i < state.requests.length; i++) {
+        if (state.requests[i].groupId === id) {
+          state.requests.splice(i, 1)
+          break;
+        }
+      }
+    },   
     // Connection open
     SOCKET_ONOPEN(state, event) {
       app.config.globalProperties.$socket = event.currentTarget;
@@ -62,6 +70,12 @@ export default createStore({
         case "followRequest":
           state.requests.push(socketMessage)
           break;
+        case "groupFollowRequest":
+          state.requests.push(socketMessage)
+          break;   
+        case "inviteRequest":
+          state.requests.push(socketMessage)
+          break;  
       }
 
       state.socket.message = message;

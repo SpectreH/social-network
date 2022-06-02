@@ -117,7 +117,7 @@ export default {
   props: {
     groupPost: {type: Boolean, default: false},
     modalId: {type: String, default: ""},
-    groupId: {type: Number},
+    groupId: {type: String, default: ""},
   },
   components: {
     SelectionDropDown
@@ -187,6 +187,10 @@ export default {
         groupPost: this.groupPost,
         groupId: this.groupId
       };
+
+      if (this.groupPost === true) {
+        form.postShare = 3;
+      }
 
       if (!this.postContent) {
         this.$toast.open({

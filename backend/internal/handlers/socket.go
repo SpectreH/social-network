@@ -52,7 +52,16 @@ func (m *Repository) GetRequestList(w http.ResponseWriter, r *http.Request) {
 	req, err := m.DB.GetUserFollowRequests(uid)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	groupReq, err := m.DB.GetGroupFollowRequests(uid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	req = append(req, groupReq...)
 
 	out, _ := json.MarshalIndent(req, "", "    ")
 	w.Header().Set("Content-Type", "application/json")

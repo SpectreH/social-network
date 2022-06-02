@@ -11,6 +11,73 @@ import (
 	"time"
 )
 
+func (m *Repository) GroupSendInvites(w http.ResponseWriter, r *http.Request) {
+	uid, err := CheckSession(w, r)
+	if err != nil {
+		return
+	}
+
+	response := models.FormValidationResponse{
+		OK: true,
+	}
+
+	err = r.ParseMultipartForm(32 << 20) // maxMemory 32MB
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	gid, err := strconv.Atoi(r.Form.Get("id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var invites []models.Follow
+	err = json.Unmarshal([]byte(r.Form.Get("invites")), &invites)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var sendedInvites []models.Follow
+	for _, invite := range invites {
+		res, err := m.DB.CheckGroupRequest(invite.Id, gid)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if res == 1 {
+			continue
+		}
+
+		res, err = m.DB.CheckAlreadyGroupFollowed(invite.Id, gid)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if res == 1 {
+			continue
+		}
+
+		err = m.DB.InsertGroupFollowRequest(gid, uid, invite.Id, true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		sendedInvites = append(sendedInvites, invite)
+	}
+
+	data, _ := json.Marshal(sendedInvites)
+	response.Data = string(data)
+	response.Message = "Invites successfully sent!"
+	js, err := json.Marshal(response)
+	w.Write(js)
+}
+
 func (m *Repository) GroupRequestToFollow(w http.ResponseWriter, r *http.Request) {
 	uid, err := CheckSession(w, r)
 	if err != nil {
@@ -21,7 +88,7 @@ func (m *Repository) GroupRequestToFollow(w http.ResponseWriter, r *http.Request
 		OK: true,
 	}
 
-	groupId, err := getIdFromQuery(r)
+	groupId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -40,6 +107,21 @@ func (m *Repository) GroupRequestToFollow(w http.ResponseWriter, r *http.Request
 			response = models.FormValidationResponse{
 				OK:      false,
 				Message: "You already following that group!",
+			}
+		}
+	}
+
+	if response.OK {
+		res, err := m.DB.CheckGroupInvite(uid, groupId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if res != 0 {
+			response = models.FormValidationResponse{
+				OK:      false,
+				Message: "You have invite to this group already!",
 			}
 		}
 	}
@@ -91,7 +173,7 @@ func (m *Repository) GroupUnFollow(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	groupId, err := getIdFromQuery(r)
+	groupId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -125,7 +207,7 @@ func (m *Repository) GroupFollow(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	groupId, err := getIdFromQuery(r)
+	groupId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -189,7 +271,7 @@ func (m *Repository) GetGroup(w http.ResponseWriter, r *http.Request) {
 		OK: true,
 	}
 
-	groupId, err := getIdFromQuery(r)
+	groupId, err := getIdFromQuery(r, "id")
 	if err != nil {
 		response = models.FormValidationResponse{
 			OK:      false,
@@ -224,6 +306,18 @@ func (m *Repository) GetGroup(w http.ResponseWriter, r *http.Request) {
 
 		if res == 1 {
 			group.Following = true
+		}
+
+		if res != 1 {
+			res, err = m.DB.CheckGroupInvite(uid, groupId)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if res == 1 {
+				group.Invite = true
+			}
 		}
 	}
 
@@ -280,6 +374,13 @@ func (m *Repository) GroupNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shareId, err := strconv.Atoi(r.Form.Get("currentShareSettings"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var invites []models.Follow
+	err = json.Unmarshal([]byte(r.Form.Get("invites")), &invites)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -347,7 +448,21 @@ func (m *Repository) GroupNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := models.FormValidationResponse{OK: true, Message: "Group successfully created!", Data: fmt.Sprint("/group/", gid)}
+	err = m.DB.FollowGroup(uid, gid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for _, invite := range invites {
+		err = m.DB.InsertGroupFollowRequest(gid, uid, invite.Id, true)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	response := models.FormValidationResponse{OK: true, Message: "Group successfully created!", Data: fmt.Sprint(gid)}
 	js, err := json.Marshal(response)
 	w.Write(js)
 }

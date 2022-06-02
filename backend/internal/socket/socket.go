@@ -8,7 +8,6 @@ import (
 	"social-network/internal/database"
 	"social-network/internal/database/sqlite"
 	"social-network/internal/models"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -108,16 +107,20 @@ func (sr *SocketReader) read() {
 		panic(err)
 	}
 
-	toId, _ := strconv.Atoi(socketMessage.Dest)
-
 	avatar, err := sr.db.GetUserAvatar(sr.id)
 	if err != nil {
 		panic(err)
 	}
 
-	socketMessage.Message = config.FOLLOW_REQUEST_MESSAGE
+	if socketMessage.Type == config.GROUP_FOLLOW_REQUEST_TYPE {
+		socketMessage.Message = config.GROUP_FOLLOW_REQUEST_MESSAGE + socketMessage.GroupName
+	} else if socketMessage.Type == config.FOLLOW_REQUEST_TYPE {
+		socketMessage.Message = config.FOLLOW_REQUEST_MESSAGE
+	} else if socketMessage.Type == config.GROUP_INVITE_TYPE {
+		socketMessage.Message = config.GROUP_INVITE_MESSAGE + socketMessage.GroupName
+	}
+
 	socketMessage.Avatar = config.AVATAR_PATH_URL + avatar
-	socketMessage.To = toId
 	socketMessage.Source = sr.id
 	socketMessage.SourceName = sr.name
 	socketMessage.Date = time.Now()

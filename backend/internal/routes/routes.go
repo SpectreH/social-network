@@ -41,7 +41,10 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/group/requesttofollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupRequestToFollow)))
 	mux.Handle("/api/group", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetGroup)))
 	mux.Handle("/api/group/new", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupNew)))
+	mux.Handle("/api/group/sendinvites", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupSendInvites)))
 	mux.Handle("/api/allgroups", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetAllGroups)))
+	mux.Handle("/api/groupacceptrequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupAcceptRequest)))
+	mux.Handle("/api/groupdeclinerequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupDeclineRequest)))
 
 	mux.Handle("/api/followers", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.FollowerList)))
 

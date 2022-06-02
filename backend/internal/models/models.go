@@ -51,6 +51,7 @@ type Group struct {
 	TotalFollowers int          `json:"totalFollowers"`
 	TotalPosts     int          `json:"totalPosts"`
 	Following      bool         `json:"isFollowing"`
+	Invite         bool         `json:"invite"`
 	IsMyGroup      bool         `json:"isMyGroup"`
 	Events         []Event      `json:"events"`
 	Posts          []PostInside `json:"posts"`
@@ -133,16 +134,13 @@ type FormValidationResponse struct {
 }
 
 type SocketMessage struct {
-	Dest string `json:"dest"`
-
-	Avatar string `json:"avatar"`
-
-	To int `json:"to"`
-
-	Source     int    `json:"authorId"`
-	SourceName string `json:"author"`
-	Message    string `json:"sub"`
-
-	Type string    `json:"type"`
-	Date time.Time `json:"date"`
+	Avatar     string    `json:"avatar"`
+	To         int       `json:"dest"`
+	GroupName  string    `json:"groupName"`
+	GroupId    int       `json:"groupId"`
+	Source     int       `json:"authorId"`
+	SourceName string    `json:"author"`
+	Message    string    `json:"sub"`
+	Type       string    `json:"type"`
+	Date       time.Time `json:"date"`
 }

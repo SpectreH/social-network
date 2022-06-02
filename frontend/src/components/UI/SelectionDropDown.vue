@@ -1,6 +1,6 @@
 <template>
   <div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">{{selectionAttr.label}}</button>
+    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" :style="additionalButton ? 'border-top-left-radius: 0; border-bottom-left-radius: 0' : ''">{{selectionAttr.label}}</button>
     <div class="dropdown-menu" onclick="event.stopPropagation()">
       <div v-if="selectionAttr.elements.length !== 0">
         <div v-for="(element, index) of selectionAttr.elements" :key="index">
@@ -27,10 +27,8 @@ export default {
         label: "Selection",
         elements: [],
       } 
-    }}
-  },
-  data: () => ({}),
-  methods: {
+    }},
+    additionalButton: {type: Boolean, default: false}
   }
 }
 </script>

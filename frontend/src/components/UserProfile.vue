@@ -68,7 +68,7 @@
     <div v-if="!profile.private || profile.isMyProfile || profile.following" class="col-sm-12">
       <div class="tab-content">
         <div class="tab-pane fade justify-content-center active show" id="timelineTab" role="tabpanel">
-          <CreatePost/>
+          <CreatePost v-if="profile.isMyProfile" />
           <router-link v-for="postData in showPosts" :key="postData.post.id" :to="'/post/' + postData.post.id" style="text-decoration: none; color: inherit;">
             <PostContent :postData="postData"/>
           </router-link>
@@ -197,7 +197,7 @@ export default {
 
       if (response.data.ok === true) {
         this.$socket.send(JSON.stringify({
-          dest: this.userId,
+          dest: parseInt(this.userId),
           type: "followRequest" 
         }))
       }  

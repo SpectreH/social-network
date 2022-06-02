@@ -25,7 +25,12 @@
                     <router-link :to="'/user/' + postData.post.authorId">
                       <h5 class="mb-0 d-inline-block">{{postData.post.firstName}} {{postData.post.lastName}}</h5>
                     </router-link>
-                    <span class="mb-0 d-inline-block">Added New Post</span>
+                    <span class="mb-0 d-inline-block">Added New Post
+                      <span v-if="postData.post.groupTitle">
+                        In
+                        <router-link :to="'/group/' + postData.post.groupId">{{ postData.post.groupTitle }}</router-link>
+                      </span> 
+                    </span>
                   </div>
                   <p class="mb-0 text-primary">{{ postData.post.createdAt }}</p>
                 </div>

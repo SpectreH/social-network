@@ -98,6 +98,14 @@ func (m *sqliteDBRepo) GetUserProfile(id int) (models.UserProfile, error) {
 	return profile, err
 }
 
+// RemoveGroupFollowRequest removes a follow request of certain user at certain group
+func (m *sqliteDBRepo) RemoveGroupFollowRequest(gid, sourceId int) error {
+	query := `DELETE FROM group_follow_requests WHERE group_id = $1 AND user_id = $2`
+	_, err := m.DB.Exec(query, gid, sourceId)
+
+	return err
+}
+
 // InsertGroupFollowRequest inserts group's follow request with status pending
 func (m *sqliteDBRepo) InsertGroupFollowRequest(gid, creatorid, uid int, invite bool) error {
 	query := `insert into group_follow_requests (request_status_id, group_id, creator_id, user_id, invite, requested_at) values ($1, $2, $3, $4, $5, $6);`
@@ -126,8 +134,8 @@ func (m *sqliteDBRepo) InsertPostShare(userId, postId int) error {
 func (m *sqliteDBRepo) InsertPost(post models.Post) (int, error) {
 	var id int
 
-	query := `insert into posts (user_id, share_id, content, created_at) values ($1, $2, $3, $4) returning id;`
-	err := m.DB.QueryRow(query, post.AuthId, post.ShareId, post.Content, post.CreatedAt).Scan(&id)
+	query := `insert into posts (group_id, user_id, share_id, content, created_at) values ($1, $2, $3, $4, $5) returning id;`
+	err := m.DB.QueryRow(query, post.GroupId, post.AuthId, post.ShareId, post.Content, post.CreatedAt).Scan(&id)
 
 	return id, err
 }
@@ -228,6 +236,15 @@ func (m *sqliteDBRepo) CheckProfileIsPivate(id int) (bool, error) {
 
 	query := `select ups.private_account from user_privacy_settings ups where ups.user_id = $1;`
 	err := m.DB.QueryRow(query, id).Scan(&res)
+
+	return res, err
+}
+
+// CheckGroupInvite checks if user has invite
+func (m *sqliteDBRepo) CheckGroupInvite(uid, gid int) (int, error) {
+	var res int
+	query := `select COUNT(*) from group_follow_requests WHERE user_id = $1 AND group_id = $2 AND invite = true;`
+	err := m.DB.QueryRow(query, uid, gid).Scan(&res)
 
 	return res, err
 }
@@ -454,6 +471,48 @@ func (m *sqliteDBRepo) GetPostComments(id int) ([]models.Comment, error) {
 	return comments, nil
 }
 
+// GetUserFollowRequests gets all group follow requests of certain user
+func (m *sqliteDBRepo) GetGroupFollowRequests(id int) ([]models.SocketMessage, error) {
+	var requests []models.SocketMessage
+
+	query := `SELECT gfr.user_id, u.first_name, u.last_name, upi.path, gfr.group_id, gfr.creator_id, ugc.first_name, ugc.last_name, g.title, gfr.requested_at, gfr.invite FROM group_follow_requests gfr
+	JOIN groups g ON g.id = gfr.group_id
+	JOIN users u ON u.id = gfr.user_id
+	JOIN users ugc ON ugc.id = gfr.creator_id
+	JOIN user_profile_images upi ON upi.user_id = gfr.user_id
+	WHERE (gfr.creator_id = $1 AND gfr.invite = false) OR (gfr.user_id = $1 AND gfr.invite = true);`
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil {
+		return requests, err
+	}
+
+	for rows.Next() {
+		var request models.SocketMessage
+		var invite bool
+		var fn, ln, cfn, cln string
+
+		if rows.Scan(&request.Source, &fn, &ln, &request.Avatar, &request.GroupId, &request.To, &cfn, &cln, &request.GroupName, &request.Date, &invite) != nil {
+			return requests, err
+		}
+
+		request.SourceName = fmt.Sprintf("%s %s", fn, ln)
+		request.Message = config.GROUP_FOLLOW_REQUEST_MESSAGE + request.GroupName
+
+		if invite {
+			request.SourceName = fmt.Sprintf("%s %s", cfn, cln)
+			request.Message = config.GROUP_INVITE_MESSAGE + request.GroupName
+		}
+
+		request.Avatar = config.AVATAR_PATH_URL + request.Avatar
+		request.Type = config.GROUP_FOLLOW_REQUEST_TYPE
+
+		requests = append(requests, request)
+	}
+
+	return requests, nil
+}
+
 // GetUserFollowRequests gets all follow requests of certain user
 func (m *sqliteDBRepo) GetUserFollowRequests(id int) ([]models.SocketMessage, error) {
 	var requests []models.SocketMessage
@@ -479,6 +538,7 @@ func (m *sqliteDBRepo) GetUserFollowRequests(id int) ([]models.SocketMessage, er
 		request.SourceName = fmt.Sprintf("%s %s", fn, ln)
 		request.Message = config.FOLLOW_REQUEST_MESSAGE
 		request.Avatar = config.AVATAR_PATH_URL + request.Avatar
+		request.Type = config.FOLLOW_REQUEST_TYPE
 
 		requests = append(requests, request)
 	}
