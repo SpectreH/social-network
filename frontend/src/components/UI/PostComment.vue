@@ -14,7 +14,7 @@
     </div>
     <div class="comment-data-block ms-3">
       <router-link :to="'/user/' + comment.authorId">
-        <h6 class="d-inline-flex">{{ comment.fistName }} {{ comment.lastName }}</h6>
+        <h6 class="d-inline-flex">{{ comment.firstName }} {{ comment.lastName }}</h6>
       </router-link>
       <p class="mb-0" style="font-size: 14px">{{ comment.content }}</p>
       <img v-if="comment.picture" :src="comment.picture" alt="" style="max-width: 300px; max-height: 300px">

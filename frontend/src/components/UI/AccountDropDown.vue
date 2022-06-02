@@ -7,7 +7,7 @@
     aria-expanded="false"
     :id="accountAttr.id"
   >
-    <img :src="getAvatar()" class="img-fluid rounded-circle me-3" alt="user" />
+    <img :src="getAvatar" class="img-fluid rounded-circle me-3" alt="user" />
     <div class="caption">
       <h6 class="mb-0 line-height">{{ accountAttr.name }}</h6>
     </div>
@@ -88,10 +88,12 @@ export default {
       } 
     }}
   },
-  methods: {
+  computed: {
     ...mapGetters({
       getAvatar: 'auth/avatar',
-    }),
+    }) 
+  },
+  methods: {
     logout() {
       this.$router.push("/logout");
     }

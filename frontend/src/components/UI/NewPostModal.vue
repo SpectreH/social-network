@@ -18,9 +18,9 @@
           <div class="d-flex align-items-center">
             <div class="user-img">
               <img
-                src="https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/1.jpg"
+                :src="getAvatar"
                 alt="userimg"
-                class="avatar-60 rounded-circle img-fluid"
+                class="avatar-60 rounded-circle"
               />
             </div>
             <form class="post-text ms-3 w-100" action="javascript:void();">
@@ -109,6 +109,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import SelectionDropDown from "./SelectionDropDown.vue"
 import axios from "axios"
 export default {
@@ -160,6 +161,9 @@ export default {
     this.selectionDD.elements = response.data;
   },
   computed: {
+    ...mapGetters({
+      getAvatar: 'auth/avatar',
+    }), 
     setShareSettingType() {
       return this.shareSettings[this.currentShareSettings].type
     }

@@ -10,7 +10,7 @@
         <div class="d-flex align-items-center">
           <div class="user-img">
             <img
-              src="https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/1.jpg"
+              :src="getAvatar"
               alt="userimg"
               class="avatar-60 rounded-circle"
             />
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import bootstrapMin from 'bootstrap/dist/js/bootstrap.min';
 import NewPostModal from "./NewPostModal.vue"
 export default {
@@ -50,6 +51,11 @@ export default {
     return {
       modal: null
     }
+  },
+  computed: {
+    ...mapGetters({
+      getAvatar: 'auth/avatar',
+    }) 
   },
   mounted() {
     this.modal = new bootstrapMin.Modal(document.getElementById("postModal"));

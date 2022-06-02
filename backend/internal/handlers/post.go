@@ -17,7 +17,7 @@ func (m *Repository) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := m.DB.GetAllPosts()
+	posts, err := m.DB.GetAllPosts(0)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

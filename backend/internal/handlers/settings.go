@@ -149,7 +149,7 @@ func (m *Repository) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	response = models.FormValidationResponse{
 		OK:   true,
-		Data: image.Name,
+		Data: config.AVATAR_SAVE_PATH + image.Name,
 	}
 
 	js, err := json.Marshal(response)

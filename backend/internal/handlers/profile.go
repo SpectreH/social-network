@@ -262,7 +262,7 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 		profile.Following = true
 	}
 
-	if (profile.Private && profile.Following) || profile.IsMyProfile {
+	if (profile.Private && profile.Following) || profile.IsMyProfile || !profile.Private {
 		followers, err := m.DB.GetUserFollowers(destId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -275,7 +275,37 @@ func (m *Repository) GetProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		posts, err := m.DB.GetAllPosts(destId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		postsToShow := []models.PostInside{}
+
+		for _, post := range posts {
+			postToShow := models.PostInside{}
+
+			var res bool
+			res, err = m.DB.CheckPostAccessibility(uid, post)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if res {
+				postToShow.Post = post
+				postToShow.Comments, err = m.DB.GetPostComments(post.Id)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				postsToShow = append(postsToShow, postToShow)
+			}
+		}
+
 		profile.Followers = append(followers, follows...)
+		profile.Posts = postsToShow
 	}
 
 	out, _ := json.MarshalIndent(profile, "", "    ")

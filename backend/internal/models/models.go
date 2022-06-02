@@ -16,21 +16,22 @@ type User struct {
 }
 
 type UserProfile struct {
-	Id             int      `json:"id"`
-	FirstName      string   `json:"firstName"`
-	LastName       string   `json:"lastName"`
-	Email          string   `json:"email"`
-	BirthDate      string   `json:"birthDate"`
-	Nickname       string   `json:"nickname"`
-	Avatar         string   `json:"avatar"`
-	AboutMe        string   `json:"aboutMe"`
-	Private        bool     `json:"private"`
-	Following      bool     `json:"following"`
-	IsMyProfile    bool     `json:"isMyProfile"`
-	TotalFollowers int      `json:"totalFollowers"`
-	TotalFollows   int      `json:"totalFollows"`
-	TotalPosts     int      `json:"totalPosts"`
-	Followers      []Follow `json:"followers"`
+	Id             int          `json:"id"`
+	FirstName      string       `json:"firstName"`
+	LastName       string       `json:"lastName"`
+	Email          string       `json:"email"`
+	BirthDate      string       `json:"birthDate"`
+	Nickname       string       `json:"nickname"`
+	Avatar         string       `json:"avatar"`
+	AboutMe        string       `json:"aboutMe"`
+	Private        bool         `json:"private"`
+	Following      bool         `json:"following"`
+	IsMyProfile    bool         `json:"isMyProfile"`
+	TotalFollowers int          `json:"totalFollowers"`
+	TotalFollows   int          `json:"totalFollows"`
+	TotalPosts     int          `json:"totalPosts"`
+	Followers      []Follow     `json:"followers"`
+	Posts          []PostInside `json:"posts"`
 }
 
 type Follow struct {

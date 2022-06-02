@@ -143,7 +143,7 @@ func (m *sqliteDBRepo) CheckPostAccessibility(userId int, post models.Post) (boo
 	switch post.ShareId {
 	case 1:
 		query := `select COUNT(*) from followers WHERE follower_id = $1 AND user_id= $2;`
-		err := m.DB.QueryRow(query, post.AuthId, userId).Scan(&res)
+		err := m.DB.QueryRow(query, userId, post.AuthId).Scan(&res)
 		return res != 0, err
 	case 2:
 		query := `select COUNT(*) from post_shares WHERE post_id = $1 AND user_id= $2;`
@@ -229,19 +229,34 @@ func (m *sqliteDBRepo) GetPost(id int) (models.Post, error) {
 	return res, err
 }
 
-// GetAllPosts gets all posts from database
-func (m *sqliteDBRepo) GetAllPosts() ([]models.Post, error) {
+// GetAllPosts gets all posts from database (option: of certain user)
+func (m *sqliteDBRepo) GetAllPosts(userID int) ([]models.Post, error) {
 	var posts []models.Post
 
-	query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
-	JOIn post_images pi ON pi.post_id = p.id
-	JOIn users u ON u.id = p.user_id
-	JOIn user_profile_images ufi ON ufi.user_id = p.user_id
-	Left OUTER JOIN groups g ON g.id = p.group_id
-	Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
-	ORDER BY p.created_at DESC;`
+	var rows *sql.Rows
+	var err error
 
-	rows, err := m.DB.Query(query)
+	if userID == 0 {
+		query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+		JOIn post_images pi ON pi.post_id = p.id
+		JOIn users u ON u.id = p.user_id
+		JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+		Left OUTER JOIN groups g ON g.id = p.group_id
+		Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
+		ORDER BY p.created_at DESC;`
+		rows, err = m.DB.Query(query)
+	} else {
+		query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+		JOIn post_images pi ON pi.post_id = p.id
+		JOIn users u ON u.id = p.user_id
+		JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+		Left OUTER JOIN groups g ON g.id = p.group_id
+		Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
+		WHERE p.user_id = $1
+		ORDER BY p.created_at DESC;`
+		rows, err = m.DB.Query(query, userID)
+	}
+
 	if err != nil && err != sql.ErrNoRows {
 		return posts, err
 	}

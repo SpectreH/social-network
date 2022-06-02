@@ -2,8 +2,9 @@
   <div v-if="profile.id">
     <div class="col-sm-12">
       <div class="text-center" style="transform: translate(0, 60px); position: relative; z-index: 10;">
-        <div class="profile-img">
-          <img :src="profile.avatar" alt="profile-img" class="avatar-130 img-fluid">
+        <div>
+          <img v-if="profile.isMyProfile" :src="getAvatar" alt="profile-img" class="avatar-130 rounded-circle">
+          <img v-else :src="profile.avatar" alt="profile-img" class="avatar-130 rounded-circle">
         </div>
         <div class="profile-detail">
           <h3> {{ profile.firstName }} {{ profile.lastName }} </h3>
@@ -68,9 +69,13 @@
       <div class="tab-content">
         <div class="tab-pane fade justify-content-center active show" id="timelineTab" role="tabpanel">
           <CreatePost/>
-          <router-link to="/post/1" style="text-decoration: none; color: inherit;">
-            <PostContent/>
+          <router-link v-for="postData in showPosts" :key="postData.post.id" :to="'/post/' + postData.post.id" style="text-decoration: none; color: inherit;">
+            <PostContent :postData="postData"/>
           </router-link>
+
+          <div class="col-12 text-center mt-2 mb-2">
+            <button v-if="postsToShow < profile.posts.length" type="button" class="btn btn-primary col-6"  @click="postsToShow += 5">Load more</button>    
+          </div>
         </div>
         <div class="tab-pane fade" id="aboutTab" role="tabpanel">
           <AboutInfo :info="profile"/>
@@ -120,6 +125,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import CreatePost from "./UI/CreatePost.vue"
 import PostContent from "./UI/PostContent.vue"
 import AboutInfo from "./UI/AboutInfo.vue"
@@ -135,6 +141,7 @@ export default {
   },
   data: () => ({
     profile: {},
+    postsToShow: 5
   }),
   props: {
     userId: { type: String, default: "" }
@@ -144,6 +151,14 @@ export default {
       handler() {
         this.fetchUserProfile()
       }
+    }
+  },
+  computed: {
+    ...mapGetters({
+      getAvatar: 'auth/avatar',
+    }),     
+    showPosts() {
+     return this.profile.posts.slice(0, this.postsToShow) 
     }
   },
   created() {

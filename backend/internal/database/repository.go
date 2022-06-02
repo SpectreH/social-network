@@ -16,7 +16,7 @@ type DatabaseRepo interface {
 	GetUserFollowRequests(id int) ([]models.SocketMessage, error)
 	GetPost(id int) (models.Post, error)
 	GetPostComments(id int) ([]models.Comment, error)
-	GetAllPosts() ([]models.Post, error)
+	GetAllPosts(userID int) ([]models.Post, error)
 	FollowUser(srcId, targetId int) error
 	UnFollow(srcId, targetId int) error
 	CheckPostAccessibility(userId int, post models.Post) (bool, error)
