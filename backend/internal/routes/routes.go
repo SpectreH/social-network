@@ -32,7 +32,9 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/declinerequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.DeclineRequest)))
 
 	mux.Handle("/api/post/new", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.PostNew)))
+	mux.Handle("/api/allposts", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetAllPosts)))
 	mux.Handle("/api/post", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetPostContent)))
+	mux.Handle("/api/post/comment", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.CommentNew)))
 
 	mux.Handle("/api/followers", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.FollowerList)))
 

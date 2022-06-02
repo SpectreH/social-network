@@ -47,6 +47,24 @@ func (m *sqliteDBRepo) InsertPrivacySettings(id int) error {
 	return err
 }
 
+// InsertComment inserts new comment
+func (m *sqliteDBRepo) InsertComment(comment models.Comment) (int, error) {
+	var id int
+
+	query := `insert into comments (user_id, post_id, content, created_at) values ($1, $2, $3, $4) returning id;`
+	err := m.DB.QueryRow(query, comment.AuthId, comment.PostId, comment.Content, comment.CreatedAt).Scan(&id)
+
+	return id, err
+}
+
+// InsertCommentPicture inserts comment picture
+func (m *sqliteDBRepo) InsertCommentPicture(id int, path string) error {
+	query := `insert into comment_images (comment_id, path) values ($1, $2);`
+	_, err := m.DB.Exec(query, id, path)
+
+	return err
+}
+
 // GetUserFullName gets users's full name
 func (m *sqliteDBRepo) GetUserFullName(id int) (string, error) {
 	var fn, ln string
@@ -88,11 +106,17 @@ func (m *sqliteDBRepo) InsertUserFollowRequest(srcId, targetId int) error {
 	return err
 }
 
+// InserPostShare inserts a record of post access for certain user
+func (m *sqliteDBRepo) InsertPostShare(userId, postId int) error {
+	query := `insert into post_shares (post_id, user_id) values ($1, $2);`
+	_, err := m.DB.Exec(query, postId, userId)
+
+	return err
+}
+
 // InsertPost inserts new post
 func (m *sqliteDBRepo) InsertPost(post models.Post) (int, error) {
 	var id int
-
-	fmt.Println(post.Content, post.CreatedAt)
 
 	query := `insert into posts (user_id, share_id, content, created_at) values ($1, $2, $3, $4) returning id;`
 	err := m.DB.QueryRow(query, post.AuthId, post.ShareId, post.Content, post.CreatedAt).Scan(&id)
@@ -106,6 +130,32 @@ func (m *sqliteDBRepo) InsertPostPicture(id int, path string) error {
 	_, err := m.DB.Exec(query, id, path)
 
 	return err
+}
+
+// CheckPostAccessibility checks if user has access to see certain post
+func (m *sqliteDBRepo) CheckPostAccessibility(userId int, post models.Post) (bool, error) {
+	var res int
+
+	if userId == post.AuthId {
+		return true, nil
+	}
+
+	switch post.ShareId {
+	case 1:
+		query := `select COUNT(*) from followers WHERE follower_id = $1 AND user_id= $2;`
+		err := m.DB.QueryRow(query, post.AuthId, userId).Scan(&res)
+		return res != 0, err
+	case 2:
+		query := `select COUNT(*) from post_shares WHERE post_id = $1 AND user_id= $2;`
+		err := m.DB.QueryRow(query, post.Id, userId).Scan(&res)
+		return res != 0, err
+	case 3:
+		query := `select COUNT(*) from group_membership WHERE group_id = $1 AND user_id= $2;`
+		err := m.DB.QueryRow(query, post.GroupId, userId).Scan(&res)
+		return res != 0, err
+	default:
+		return true, nil
+	}
 }
 
 // CheckFollowRequest checks if follow request already exists
@@ -156,17 +206,67 @@ func (m *sqliteDBRepo) UnFollow(srcId, targetId int) error {
 func (m *sqliteDBRepo) GetPost(id int) (models.Post, error) {
 	var res models.Post
 
-	query := `SELECT p.id, p.user_id, u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+	query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
 	JOIn post_images pi ON pi.post_id = p.id
 	JOIn users u ON u.id = p.user_id
 	JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+	Left OUTER JOIN groups g ON g.id = p.group_id
+	Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
 	WHEre p.id = $1;`
-	err := m.DB.QueryRow(query, id).Scan(&res.Id, &res.AuthId, &res.FirstName, &res.LastName, &res.Avatar, &res.ShareId, &res.Content, &res.Picture, &res.CreatedAt)
 
-	res.Picture = config.AVATAR_PATH_URL + res.Picture
+	err := m.DB.QueryRow(query, id).Scan(&res.Id, &res.AuthId, &res.GroupId, &res.GroupTitle, &res.GroupAvatar, &res.FirstName, &res.LastName, &res.Avatar, &res.ShareId, &res.Content, &res.Picture, &res.CreatedAt)
+
+	if res.GroupId != 0 {
+		res.GroupAvatar = config.AVATAR_PATH_URL + res.GroupAvatar
+	}
+
+	if res.Picture != "" {
+		res.Picture = config.AVATAR_PATH_URL + res.Picture
+	}
+
 	res.Avatar = config.AVATAR_PATH_URL + res.Avatar
 
 	return res, err
+}
+
+// GetAllPosts gets all posts from database
+func (m *sqliteDBRepo) GetAllPosts() ([]models.Post, error) {
+	var posts []models.Post
+
+	query := `SELECT p.id, p.user_id, p.group_id, IFNULL(g.title, ''), IFNULL(gi.path, ''), u.first_name, u.last_name, ufi.path, p.share_id, p.content, pi.path, p.created_at FROM posts p
+	JOIn post_images pi ON pi.post_id = p.id
+	JOIn users u ON u.id = p.user_id
+	JOIn user_profile_images ufi ON ufi.user_id = p.user_id
+	Left OUTER JOIN groups g ON g.id = p.group_id
+	Left OUTER JOIn group_images gi ON gi.group_id = p.group_id
+	ORDER BY p.created_at DESC;`
+
+	rows, err := m.DB.Query(query)
+	if err != nil && err != sql.ErrNoRows {
+		return posts, err
+	}
+
+	for rows.Next() {
+		var post models.Post
+
+		if rows.Scan(&post.Id, &post.AuthId, &post.GroupId, &post.GroupTitle, &post.GroupAvatar, &post.FirstName, &post.LastName, &post.Avatar, &post.ShareId, &post.Content, &post.Picture, &post.CreatedAt) != nil {
+			return posts, err
+		}
+
+		if post.GroupId != 0 {
+			post.GroupAvatar = config.AVATAR_PATH_URL + post.GroupAvatar
+		}
+
+		if post.Picture != "" {
+			post.Picture = config.AVATAR_PATH_URL + post.Picture
+		}
+
+		post.Avatar = config.AVATAR_PATH_URL + post.Avatar
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
 }
 
 // GetPostComments gets all post comments
@@ -177,7 +277,8 @@ func (m *sqliteDBRepo) GetPostComments(id int) ([]models.Comment, error) {
 	JOIN comment_images ci ON ci.comment_id= c.id
 	JOIN users u ON u.id = c.user_id  
 	JOIn user_profile_images ufi ON ufi.user_id = c.user_id
-	WHEre c.post_id = $1;`
+	WHEre c.post_id = $1
+	ORDER BY c.created_at DESC;`
 
 	rows, err := m.DB.Query(query, id)
 	if err != nil && err != sql.ErrNoRows {
@@ -191,7 +292,10 @@ func (m *sqliteDBRepo) GetPostComments(id int) ([]models.Comment, error) {
 			return comments, err
 		}
 
-		comment.Picture = config.AVATAR_PATH_URL + comment.Picture
+		if comment.Picture != "" {
+			comment.Picture = config.AVATAR_PATH_URL + comment.Picture
+		}
+
 		comment.Avatar = config.AVATAR_PATH_URL + comment.Avatar
 
 		comments = append(comments, comment)

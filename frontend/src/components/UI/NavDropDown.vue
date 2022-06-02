@@ -11,7 +11,7 @@
     <div v-if="requests.length !== 0" class="number-circle danger" style="font-size: 11px">{{ requests.length }}</div>
   </a>
 
-  <div :class="menuAttr.id === 'follow-drop' ? 'sub-drop-large' : _ " class="sub-drop dropdown-menu" :aria-labelledby="menuAttr.id">
+  <div :class="menuAttr.id === 'follow-drop' ? 'sub-drop-large' : '' " class="sub-drop dropdown-menu" :aria-labelledby="menuAttr.id">
     <div class="card shadow-none m-0">
       <div class="card-header d-flex justify-content-between bg-primary">
         <div class="header-title bg-primary">

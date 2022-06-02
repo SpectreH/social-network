@@ -51,6 +51,7 @@ type PostInside struct {
 type Comment struct {
 	Id     string `json:"id"`
 	AuthId int    `json:"authorId"`
+	PostId int    `json:"postId"`
 	Author
 	Picture   string    `json:"picture"`
 	Content   string    `json:"content"`
@@ -64,10 +65,14 @@ type Author struct {
 }
 
 type Post struct {
-	Id     string `json:"id"`
-	AuthId int    `json:"authorId"`
+	Id     int `json:"id"`
+	AuthId int `json:"authorId"`
 	Author
-	ShareId    string    `json:"shareId"`
+	GroupId     int    `json:"groupId"`
+	GroupTitle  string `json:"groupTitle"`
+	GroupAvatar string `json:"groupAvatar"`
+
+	ShareId    int       `json:"shareId"`
 	Picture    string    `json:"picture"`
 	Paragraphs []string  `json:"paragraphs"`
 	Content    string    `json:"content"`

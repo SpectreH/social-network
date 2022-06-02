@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade" :id="modalId" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" style="overflow: inherit">
+  <div class="modal fade" :id="modalId" :ref="modalId" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" style="overflow: inherit">
     <div class="modal-dialog">
       <div class="modal-content">
         
@@ -8,8 +8,8 @@
           <button
             type="button"
             class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
+            data-bs-dismiss="modal">
+            
             <i class="ri-close-line"></i>
           </button>
         </div>
@@ -109,13 +109,14 @@
 </template>
 
 <script>
-import axios from "axios";
 import SelectionDropDown from "./SelectionDropDown.vue"
+import axios from "axios"
 export default {
   name: "NewPostModal",
   props: {
     groupPost: {type: Boolean, default: false},
     modalId: {type: String, default: ""},
+    groupId: {type: Number},
   },
   components: {
     SelectionDropDown
@@ -178,7 +179,9 @@ export default {
         postContent: this.postContent,
         postImage: this.postImage,
         postShare: this.currentShareSettings,
-        followers: JSON.stringify(this.selectionDD.elements)
+        followers: JSON.stringify(this.selectionDD.elements),
+        groupPost: this.groupPost,
+        groupId: this.groupId
       };
 
       if (!this.postContent) {
@@ -217,6 +220,10 @@ export default {
           message: response.data.message,
           type: 'success',
         });
+
+        this.$emit('closeModal')
+
+        this.$router.push( response.data.data)
       }
     },
     setImage(e) {

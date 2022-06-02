@@ -16,14 +16,14 @@
       <router-link :to="'/user/' + comment.authorId">
         <h6 class="d-inline-flex">{{ comment.fistName }} {{ comment.lastName }}</h6>
       </router-link>
-      <p class="mb-0">{{ comment.content }}</p>
-      <div
-        class="d-flex flex-wrap align-items-center comment-activity"
-      >
-        <span class="text-primary"> comment.createdAt </span>
+      <p class="mb-0" style="font-size: 14px">{{ comment.content }}</p>
+      <img v-if="comment.picture" :src="comment.picture" alt="" style="max-width: 300px; max-height: 300px">
+      <div class="d-flex flex-wrap align-items-center comment-activity">
+        <span class="text-primary"> {{ comment.createdAt }} </span>
       </div>
     </div>
   </div>
+  <hr>
 </template>
 
 <script>

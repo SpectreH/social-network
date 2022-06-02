@@ -33,9 +33,9 @@
           <ul class="navbar-nav ms-auto navbar-list gap-1">
             <li>
               <router-link to="/">
-                  <a to="/" class="d-flex align-items-center">
-                    <i class="ri-home-line"></i>
-                  </a>
+                <a to="/" class="d-flex align-items-center">
+                  <i class="ri-home-line"></i>
+                </a>
               </router-link>
             </li>
 
@@ -102,7 +102,7 @@ export default {
   created() {
     const data = this.getUserData();
 
-    this.accountDD.id = data.id
+    this.accountDD.id =  data.id
     this.accountDD.name = `${data.firstName} ${data.lastName}` 
   },
   methods: {

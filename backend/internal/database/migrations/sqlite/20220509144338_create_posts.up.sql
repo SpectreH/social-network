@@ -1,5 +1,6 @@
 CREATE TABLE posts (
 	id INTEGER PRIMARY KEY,
+  group_id INTEGER DEFAULT 0,
   user_id INTEGER NOT NULL,
   share_id INTEGER NOT NULL,
 	content BLOB NOT NULL,

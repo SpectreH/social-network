@@ -17,12 +17,11 @@
           </div>
           <form
             class="post-text ms-3 w-100"
-            data-bs-toggle="modal"
-            data-bs-target="#postModal"
             action="javascript:void();"
           >
             <input
               type="text"
+              @click="openModal"
               class="form-control rounded"
               placeholder="Write something here..."
               style="border: none"
@@ -31,12 +30,13 @@
         </div>
         <hr />
       </div>
-      <NewPostModal :modalId="'postModal'" :groupPost="groupPost"/>
+      <NewPostModal :modalId="'postModal'" :groupPost="groupPost" @closeModal="closeModal"/>
     </div>
   </div>
 </template>
 
 <script>
+import bootstrapMin from 'bootstrap/dist/js/bootstrap.min';
 import NewPostModal from "./NewPostModal.vue"
 export default {
   name: "CreatePost",
@@ -45,6 +45,22 @@ export default {
   },
   props: {
     groupPost: {type: Boolean, default: false}
+  },
+  data() {
+    return {
+      modal: null
+    }
+  },
+  mounted() {
+    this.modal = new bootstrapMin.Modal(document.getElementById("postModal"));
+  },
+  methods: {
+    openModal() {
+      this.modal.show()
+    },
+    closeModal() {
+      this.modal.hide()
+    }
   }
 };
 </script>

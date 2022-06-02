@@ -7,6 +7,8 @@ type DatabaseRepo interface {
 	InesertSession(id int) error
 	InsertProfileImage(id int, path string) error
 	InsertPrivacySettings(id int) error
+	InsertComment(comment models.Comment) (int, error)
+	InsertCommentPicture(id int, path string) error
 	GetUserData(id int) (models.User, error)
 	GetUserAvatar(id int) (string, error)
 	GetUserProfile(id int) (models.UserProfile, error)
@@ -14,9 +16,12 @@ type DatabaseRepo interface {
 	GetUserFollowRequests(id int) ([]models.SocketMessage, error)
 	GetPost(id int) (models.Post, error)
 	GetPostComments(id int) ([]models.Comment, error)
+	GetAllPosts() ([]models.Post, error)
 	FollowUser(srcId, targetId int) error
 	UnFollow(srcId, targetId int) error
+	CheckPostAccessibility(userId int, post models.Post) (bool, error)
 	InsertUserFollowRequest(srcId, targetId int) error
+	InsertPostShare(userId, postId int) error
 	InsertPost(post models.Post) (int, error)
 	InsertPostPicture(id int, path string) error
 	RemoveFollowRequest(sourceId, destId int) error
