@@ -19744,6 +19744,7 @@ span.avatar-status {
 }
 
 .chat-user span.chat-time {
+  max-width: fit-content;
   display: block;
   font-size: 12px;
   font-weight: 500
@@ -19752,7 +19753,6 @@ span.avatar-status {
 .chat-detail {
   display: -webkit-flex;
   display: -ms-flexbox;
-  display: flex;
   -webkit-justify-content: flex-end;
   -ms-flex-pack: end;
   justify-content: flex-end
@@ -19762,14 +19762,13 @@ span.avatar-status {
   position: absolute;
   bottom: -20px;
   right: 0;
-  color: #777d74;
   font-size: .8rem;
   white-space: nowrap
 }
 
 .chat-message {
   position: relative;
-  text-align: right;
+  text-align: left;
   padding: .75rem 1rem;
   margin: 0 1.33rem 1.33rem .3rem;
   clear: both;
@@ -19803,7 +19802,7 @@ span.avatar-status {
   -webkit-flex-direction: row-reverse;
   -ms-flex-direction: row-reverse;
   flex-direction: row-reverse;
-  text-align: right
+  text-align: left;
 }
 
 .avatar {

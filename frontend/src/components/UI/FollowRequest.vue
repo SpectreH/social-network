@@ -54,6 +54,8 @@ export default {
         response = await axios.get('api/groupacceptrequest', { params: { id: this.request.authorId, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
       } else if (this.request.type == "inviteRequest") {
         response = await axios.get('api/groupacceptrequest', { params: { id: this.request.dest, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
+      } else if (this.request.type == "newEvent") {
+        response = await axios.get('api/event/accept', { params: { id: this.request.eventId }, withCredentials: true } );
       }
 
       this.parseResponse(response);
@@ -65,6 +67,8 @@ export default {
         response = await axios.get('api/groupdeclinerequest', { params: { id: this.request.authorId, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
       } else if (this.request.type == "inviteRequest") {
         response = await axios.get('api/groupdeclinerequest', { params: { id: this.request.dest, groupId: this.request.groupId, type: this.request.type }, withCredentials: true } );
+      } else if (this.request.type == "newEvent") {
+        response = await axios.get('api/event/decline', { params: { id: this.request.eventId }, withCredentials: true } );
       }
 
       this.parseResponse(response);

@@ -3,8 +3,8 @@
     <div class="col-sm-12">
       <div class="text-center" style="transform: translate(0, 60px); position: relative; z-index: 10;">
         <div>
-          <img v-if="profile.isMyProfile" :src="getAvatar" alt="profile-img" class="avatar-130 rounded-circle">
-          <img v-else :src="profile.avatar" alt="profile-img" class="avatar-130 rounded-circle">
+          <img v-if="profile.isMyProfile" :src="getAvatar" alt="profile-img"  class="avatar-130 profile-pic rounded-circle">
+          <img v-else :src="profile.avatar" alt="profile-img" class="avatar-130 profile-pic rounded-circle">
         </div>
         <div class="profile-detail">
           <h3> {{ profile.firstName }} {{ profile.lastName }} </h3>

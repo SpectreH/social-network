@@ -34,9 +34,23 @@ type UserProfile struct {
 	Posts          []PostInside `json:"posts"`
 }
 
+type ChatMessage struct {
+	Id             int       `json:"id"`
+	ProfilePicture string    `json:"profilePicture"`
+	ChatId         int       `json:"chatId"`
+	AuthorId       int       `json:"author"`
+	AuthorName     string    `json:"authorName"`
+	Content        string    `json:"text"`
+	CreatedAt      time.Time `json:"time"`
+}
+
 type Chat struct {
-	Id        int  `json:"id"`
-	GroupChat bool `json:"groupChat"`
+	Id        int           `json:"id"`
+	GroupChat bool          `json:"type"`
+	DestId    int           `json:"destId"`
+	Name      string        `json:"name"`
+	Avatar    string        `json:"avatar"`
+	Messages  []ChatMessage `json:"messages"`
 }
 
 type Group struct {
@@ -58,16 +72,17 @@ type Group struct {
 }
 
 type Event struct {
-	Id           int                 `json:"id"`
-	GroupId      int                 `json:"groupId"`
-	Title        string              `json:"title"`
-	Description  string              `json:"description"`
-	Date         time.Time           `json:"date"`
-	CreatedAt    time.Time           `json:"createdAt"`
-	Participants []EventParticipants `json:"participants"`
+	Id           int                `json:"id"`
+	GroupId      int                `json:"groupId"`
+	Picture      string             `json:"picture"`
+	Title        string             `json:"title"`
+	Description  string             `json:"description"`
+	Date         time.Time          `json:"date"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	Participants []EventParticipant `json:"participants"`
 }
 
-type EventParticipants struct {
+type EventParticipant struct {
 	Id            int  `json:"id"`
 	ParticipantId int  `json:"participantId"`
 	EventId       int  `json:"eventId"`
@@ -136,6 +151,9 @@ type FormValidationResponse struct {
 type SocketMessage struct {
 	Avatar     string    `json:"avatar"`
 	To         int       `json:"dest"`
+	EventName  string    `json:"eventName"`
+	EventDate  string    `json:"eventDate"`
+	EventId    int       `json:"eventId"`
 	GroupName  string    `json:"groupName"`
 	GroupId    int       `json:"groupId"`
 	Source     int       `json:"authorId"`

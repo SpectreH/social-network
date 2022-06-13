@@ -15,6 +15,7 @@ const (
 	FOLLOW_REQUEST_MESSAGE       = "Wants to be your follower"
 	GROUP_FOLLOW_REQUEST_MESSAGE = "Wants to be a member of your group: "
 	GROUP_FOLLOW_REQUEST_TYPE    = "groupFollowRequest"
+	NEW_EVENT_REQUEST_TYPE       = "newEvent"
 	FOLLOW_REQUEST_TYPE          = "followRequest"
 	GROUP_INVITE_TYPE            = "inviteRequest"
 	GROUP_INVITE_MESSAGE         = "Invites you to join group: "

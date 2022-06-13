@@ -3,6 +3,7 @@ package socket
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"social-network/internal/config"
 	"social-network/internal/database"
@@ -80,6 +81,17 @@ func (sr *SocketReader) startThread() {
 	}()
 }
 
+// broadcastMultiple sends message to multiple users from array
+func (sr *SocketReader) broadcastMultiple(message models.SocketMessage, ids []int) {
+	for _, g := range savedSocketReader {
+		for _, i := range ids {
+			if i == g.id {
+				g.writeMsg(message)
+			}
+		}
+	}
+}
+
 // broadcast sends message to user
 func (sr *SocketReader) broadcast(message models.SocketMessage) {
 	for _, g := range savedSocketReader {
@@ -105,6 +117,26 @@ func (sr *SocketReader) read() {
 	err = json.Unmarshal(b, &socketMessage)
 	if err != nil {
 		panic(err)
+	}
+
+	if socketMessage.Type == config.NEW_EVENT_REQUEST_TYPE {
+		parts, err := sr.db.GetGroupParticipants(socketMessage.GroupId)
+		if err != nil {
+			panic(err)
+		}
+
+		group, err := sr.db.GetGroup(socketMessage.GroupId)
+		if err != nil {
+			panic(err)
+		}
+
+		socketMessage.Message = fmt.Sprintf("Has new event %s what will be held on %s", socketMessage.EventName, socketMessage.EventDate)
+		socketMessage.Avatar = group.Picture
+		socketMessage.SourceName = group.Title
+		socketMessage.Date = time.Now()
+
+		sr.broadcastMultiple(socketMessage, parts)
+		return
 	}
 
 	avatar, err := sr.db.GetUserAvatar(sr.id)

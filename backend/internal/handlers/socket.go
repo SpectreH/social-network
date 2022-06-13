@@ -61,7 +61,14 @@ func (m *Repository) GetRequestList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventReq, err := m.DB.GetEventRequests(uid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	req = append(req, groupReq...)
+	req = append(req, eventReq...)
 
 	out, _ := json.MarshalIndent(req, "", "    ")
 	w.Header().Set("Content-Type", "application/json")

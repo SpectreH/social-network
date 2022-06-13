@@ -58,6 +58,7 @@ export default ({
     async signOut({ commit }) {
       await axios.get('api/logout')
       commit('SET_TOKEN', null);
+      commit('SET_USER', null);      
     }
   }
 })

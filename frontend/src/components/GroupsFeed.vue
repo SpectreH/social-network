@@ -41,7 +41,10 @@ export default {
   },
   async created() {
     let response = await axios.get("api/allgroups", { withCredentials: true} );
-    this.groups = response.data
+
+    if (response.data !== null) {
+      this.groups = response.data
+    }
   },
   mounted() {
     this.modal = new bootstrapMin.Modal(document.getElementById("newGroupModal"));

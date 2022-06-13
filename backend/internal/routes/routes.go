@@ -26,6 +26,9 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/profile/unfollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileUnFollow)))
 	mux.Handle("/api/profile/requesttofollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.ProfileRequestToFollow)))
 
+	mux.Handle("/api/allchats", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetChats)))
+	mux.Handle("/api/chat/submit", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.NewMessage)))
+
 	mux.Handle("/api/socket", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.CreateSocketReader)))
 	mux.Handle("/api/requests", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetRequestList)))
 	mux.Handle("/api/acceptrequest", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.AcceptRequest)))
@@ -36,6 +39,10 @@ func SetRoutes() http.Handler {
 	mux.Handle("/api/post", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GetPostContent)))
 	mux.Handle("/api/post/comment", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.CommentNew)))
 
+	mux.Handle("/api/event/accept", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.EventAcceptRequest)))
+	mux.Handle("/api/event/decline", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.EventDeclineRequest)))
+
+	mux.Handle("/api/group/newevent", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.NewEvent)))
 	mux.Handle("/api/group/follow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupFollow)))
 	mux.Handle("/api/group/unfollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupUnFollow)))
 	mux.Handle("/api/group/requesttofollow", middleware.Repo.SetupCors(http.HandlerFunc(handlers.Repo.GroupRequestToFollow)))

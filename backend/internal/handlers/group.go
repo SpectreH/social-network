@@ -339,6 +339,12 @@ func (m *Repository) GetGroup(w http.ResponseWriter, r *http.Request) {
 		group.Posts = append(group.Posts, postToShow)
 	}
 
+	group.Events, err = m.DB.GetAllGroupEvents(groupId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	out, _ := json.MarshalIndent(group, "", "    ")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)

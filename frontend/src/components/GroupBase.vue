@@ -14,7 +14,7 @@
 
       <div class="col-lg-4">
         <GroupAbout :group="group"/>
-        <GroupEventsFeed/>
+        <GroupEventsFeed  :groupId="groupId" :events="showEvents"/>
       </div>
     </div>
 
@@ -71,6 +71,13 @@ export default {
       }
 
       return this.group.posts.slice(0, this.postsToShow) 
+    },
+    showEvents() {
+      if (!this.group.events) {
+        return []
+      }
+
+      return this.group.events
     }
   },
   async created() {
@@ -80,7 +87,6 @@ export default {
     async fetchGroupProfile() {
       let response = await axios.get('api/group', { params: { id: this.groupId }, withCredentials: true } );
       this.group = response.data;
-      console.log(this.group)
     },
     follow() {
       this.group.isFollowing = true;

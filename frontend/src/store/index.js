@@ -75,7 +75,10 @@ export default createStore({
           break;   
         case "inviteRequest":
           state.requests.push(socketMessage)
-          break;  
+          break;
+        case "newEvent":
+          state.requests.push(socketMessage)
+          break;
       }
 
       state.socket.message = message;
