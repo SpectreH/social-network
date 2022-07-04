@@ -38,7 +38,7 @@ export default {
   },
   created() {
     if (this.authenticated) {
-      this.$connect("ws://127.0.0.1:4000/api/socket");
+      this.$connect("ws://localhost:4000/api/socket");
     }
   }
 }

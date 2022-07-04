@@ -13,7 +13,7 @@
               <router-link to="/user/1">
                 <img
                   :src="postData.post.avatar"
-                  class="rounded-circle avatar-50"
+                  class="profile-pic rounded-circle avatar-50"
                   alt=""
                 />
               </router-link>
@@ -32,7 +32,7 @@
                       </span> 
                     </span>
                   </div>
-                  <p class="mb-0 text-primary">{{ postData.post.createdAt }}</p>
+                  <p class="mb-0 text-primary">{{ timeFormat }}</p>
                 </div>
               </div>
             </div>
@@ -101,6 +101,7 @@
 </template>
 
 <script>
+import getTime from "@/main"
 import axios from "axios";
 import PostComment from "./PostComment.vue"
 export default {
@@ -120,6 +121,9 @@ export default {
     }
   },
   computed: {
+    timeFormat() {
+      return getTime(this.postData.post.createdAt)
+    },
     commentsLength() {
       if (!this.postData.comments) {
         return 0

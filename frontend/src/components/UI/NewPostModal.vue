@@ -20,7 +20,7 @@
               <img
                 :src="getAvatar"
                 alt="userimg"
-                class="avatar-60 rounded-circle"
+                class="avatar-60 profile-pic rounded-circle"
               />
             </div>
             <form class="post-text ms-3 w-100" action="javascript:void();">

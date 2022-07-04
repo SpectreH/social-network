@@ -22,14 +22,14 @@ export default function getTime(givenTime) {
 }
 
 require('@/store/auth/subscriber')
-axios.defaults.baseURL = 'http://127.0.0.1:4000/'
+axios.defaults.baseURL = 'http://localhost:4000/'
 
 const app = createApp(App)
 
 store.dispatch('auth/authMe', localStorage.getItem('sn_token')).then(function() {
   app.use(store)
     .use(router)
-    .use(VueNativeSock, "ws://127.0.0.1:4000/api/socket", { store: store, "connectManually": true }).use(VueToast)
+    .use(VueNativeSock, "ws://localhost:4000/api/socket", { store: store, "connectManually": true }).use(VueToast)
     .mount("#app")
 }.bind(app))
 

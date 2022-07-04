@@ -423,6 +423,30 @@ func (m *sqliteDBRepo) GetPost(id int) (models.Post, error) {
 	return res, err
 }
 
+// GetGroupParticipantsByChat gets all group followers id by chat id
+func (m *sqliteDBRepo) GetGroupParticipantsByChat(id int) ([]int, error) {
+	var participants []int
+
+	query := `SELECT user_id FROM group_membership WHERE group_id = (SELECT id FROM groups WHERE groups.chat_id = $1);`
+
+	rows, err := m.DB.Query(query, id)
+	if err != nil && err != sql.ErrNoRows {
+		return participants, err
+	}
+
+	for rows.Next() {
+		var participant int
+
+		if rows.Scan(&participant) != nil {
+			return participants, err
+		}
+
+		participants = append(participants, participant)
+	}
+
+	return participants, nil
+}
+
 // GetGroupParticipants gets all group followers id
 func (m *sqliteDBRepo) GetGroupParticipants(id int) ([]int, error) {
 	var participants []int

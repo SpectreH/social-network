@@ -46,7 +46,7 @@ type ChatMessage struct {
 
 type Chat struct {
 	Id        int           `json:"id"`
-	GroupChat bool          `json:"type"`
+	GroupChat bool          `json:"isGroupChat"`
 	DestId    int           `json:"destId"`
 	Name      string        `json:"name"`
 	Avatar    string        `json:"avatar"`
@@ -149,16 +149,18 @@ type FormValidationResponse struct {
 }
 
 type SocketMessage struct {
-	Avatar     string    `json:"avatar"`
-	To         int       `json:"dest"`
-	EventName  string    `json:"eventName"`
-	EventDate  string    `json:"eventDate"`
-	EventId    int       `json:"eventId"`
-	GroupName  string    `json:"groupName"`
-	GroupId    int       `json:"groupId"`
-	Source     int       `json:"authorId"`
-	SourceName string    `json:"author"`
-	Message    string    `json:"sub"`
-	Type       string    `json:"type"`
-	Date       time.Time `json:"date"`
+	Avatar      string    `json:"avatar"`
+	To          int       `json:"dest"`
+	EventName   string    `json:"eventName"`
+	EventDate   string    `json:"eventDate"`
+	EventId     int       `json:"eventId"`
+	ChatId      int       `json:"chatId"`
+	GroupName   string    `json:"groupName"`
+	GroupId     int       `json:"groupId"`
+	IsGroupChat bool      `json:"isGroupChat"`
+	Source      int       `json:"authorId"`
+	SourceName  string    `json:"author"`
+	Message     string    `json:"sub"`
+	Type        string    `json:"type"`
+	Date        time.Time `json:"date"`
 }

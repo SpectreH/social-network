@@ -3,7 +3,6 @@
     <div class="card-body chat-page p-0">
       <div class="chat-data-block">
         <div class="row">
-
           <div class="col-lg-3 chat-data-left scroller">
             <ChatSideBar :chats="chatOverviews"  :callback="changeChat"/>
           </div>
@@ -34,28 +33,16 @@ export default {
   },
   data: () => ({
     currentChat: null,
-    chats: {
-      // "1":
-      // {
-      //   id: "1",
-      //   name: "Denni Karin",
-      //   type: "direct",
-      //   avatar: "https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/05.jpg",
-      //   messages: [
-      //     {
-      //       author: 1,
-      //       time: "12:30",
-      //       text: "Hello 🤔",
-      //     },
-      //     {
-      //       author: 2,
-      //       time: "12:30",
-      //       text: "Hello 🤔",
-      //     }
-      //   ],
-      // }
-    }
+    chats: {}
   }),
+  watch: {
+    "$store.state.message": {
+      handler(newMessage) {
+        this.chats[newMessage.chatId].messages.push(newMessage)
+      },
+      deep: true
+    }
+  },
   computed: {
     chatOverviews() {
       let res = [];
@@ -64,11 +51,12 @@ export default {
         res.push({
           id: chat.id,
           name: chat.name,
-          type: chat.type,
+          type: chat.isGroupChat,
           avatar: chat.avatar,
           lastMessageContent: chat.messages.length == 0 ? "" : chat.messages[chat.messages.length - 1].text.slice(0, 10) + "..."
         })
       }
+
 
       return res
     }
@@ -94,18 +82,30 @@ export default {
   },
   methods: {
     ...mapGetters({
-      getId: 'auth/id'
+      getId: 'auth/id',
     }),
     changeChat(chatId) {
-      this.currentChat = chatId
+      this.currentChat = chatId;
     },
     newMessage(message) {
+      this.$socket.send(JSON.stringify({
+        isGroupChat: this.chats[this.currentChat].isGroupChat,
+        chatId: this.currentChat,
+        authorId: this.getId(),
+        sub: message,
+        dest: this.chats[this.currentChat].destId,
+        type: "newMessage" 
+      }));
+
+      this.addMessage(this.getId(), message);
+    },
+    addMessage(author, message) {
       this.chats[this.currentChat].messages.push({
-        author: this.getId(),
+        author: author,
         time: new Date(Date.now()).toISOString(),
         text: message,
-      })
-    }
+      });
+    },
   }
 }
 </script>

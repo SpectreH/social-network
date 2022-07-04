@@ -9,7 +9,7 @@
       "
     >
       <div class="col-6 d-flex align-items-center">
-        <img :src="request.avatar" class="avatar-40 rounded" alt="" />
+        <img :src="request.avatar" class="col-2 profile-pic rounded-circle avatar-35" alt="" height="35" width="35" />
         <div class="ms-3">
           <h6 class="mb-0">{{ request.author }}</h6>
           <p class="mb-0">{{ request.sub }}</p>

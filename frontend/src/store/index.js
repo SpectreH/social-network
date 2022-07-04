@@ -18,7 +18,8 @@ export default createStore({
       heartBeatTimer: 0,
     },
 
-    requests: []
+    requests: [],
+    message: null,
   },
   mutations: {
     SET_REQUESTS(state, req) {
@@ -79,6 +80,16 @@ export default createStore({
         case "newEvent":
           state.requests.push(socketMessage)
           break;
+        case "newMessage":
+          state.message = {
+            chatId: socketMessage.chatId,
+            author: socketMessage.authorId,
+            authorName: socketMessage.author.split(" ")[0],
+            profilePicture: socketMessage.avatar,
+            time: new Date(Date.now()).toISOString(),
+            text: socketMessage.sub,
+          }
+          break;
       }
 
       state.socket.message = message;
@@ -96,6 +107,9 @@ export default createStore({
     requests(state) {
       return state.requests;
     },
+    message(state) {
+      return state.message;
+    },    
   },
   actions: {
     async loadRequests({ commit }) {

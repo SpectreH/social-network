@@ -85,6 +85,10 @@ func (sr *SocketReader) startThread() {
 func (sr *SocketReader) broadcastMultiple(message models.SocketMessage, ids []int) {
 	for _, g := range savedSocketReader {
 		for _, i := range ids {
+			if sr.id == i {
+				continue
+			}
+
 			if i == g.id {
 				g.writeMsg(message)
 			}
@@ -143,6 +147,7 @@ func (sr *SocketReader) read() {
 	if err != nil {
 		panic(err)
 	}
+	socketMessage.Avatar = config.AVATAR_PATH_URL + avatar
 
 	if socketMessage.Type == config.GROUP_FOLLOW_REQUEST_TYPE {
 		socketMessage.Message = config.GROUP_FOLLOW_REQUEST_MESSAGE + socketMessage.GroupName
@@ -152,10 +157,19 @@ func (sr *SocketReader) read() {
 		socketMessage.Message = config.GROUP_INVITE_MESSAGE + socketMessage.GroupName
 	}
 
-	socketMessage.Avatar = config.AVATAR_PATH_URL + avatar
 	socketMessage.Source = sr.id
 	socketMessage.SourceName = sr.name
 	socketMessage.Date = time.Now()
+
+	if socketMessage.IsGroupChat && socketMessage.Type == config.NEW_MESSAGE_TYPE {
+		parts, err := sr.db.GetGroupParticipantsByChat(socketMessage.ChatId)
+		if err != nil {
+			panic(err)
+		}
+
+		sr.broadcastMultiple(socketMessage, parts)
+		return
+	}
 
 	sr.broadcast(socketMessage)
 }

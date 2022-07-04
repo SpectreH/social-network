@@ -6,7 +6,7 @@
         <img
           :src="comment.avatar"
           alt="userimg"
-          class="avatar-35 rounded-circle img-fluid"
+          class="avatar-35 profile-pic rounded-circle img-fluid"
           width="35px"
           height="35px"
         />
@@ -19,7 +19,7 @@
       <p class="mb-0" style="font-size: 14px">{{ comment.content }}</p>
       <img v-if="comment.picture" :src="comment.picture" alt="" style="max-width: 300px; max-height: 300px">
       <div class="d-flex flex-wrap align-items-center comment-activity">
-        <span class="text-primary"> {{ comment.createdAt }} </span>
+        <span class="text-primary"> {{ timeFormat }} </span>
       </div>
     </div>
   </div>
@@ -27,10 +27,16 @@
 </template>
 
 <script>
+import getTime from '@/main'
 export default {
   name: "PostComment",
   props: {
     comment: {type: Object}
+  },
+  computed: {
+    timeFormat() {
+      return getTime(this.comment.createdAt)
+    }
   }
 }
 </script>

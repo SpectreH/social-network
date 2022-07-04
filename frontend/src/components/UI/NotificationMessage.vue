@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex align-items-center">
     <div class="">
-      <img :src="notification.avatar" class="avatar-40 rounded" alt="" />
+      <img :src="notification.avatar" class="profile-pic rounded-circle avatar-35" alt="" />
     </div>
     <div class="ms-3 w-100">
       <h6 class="mb-0">{{ notification.author }}</h6>

@@ -21,6 +21,7 @@ type DatabaseRepo interface {
 	GetPost(id int) (models.Post, error)
 	GetGroup(id int) (models.Group, error)
 	GetGroupParticipants(id int) ([]int, error)
+	GetGroupParticipantsByChat(id int) ([]int, error)
 	CheckGroupIsPivate(id int) (bool, error)
 	CheckChatExistence(fid, sid int) (bool, error)
 	GetPostComments(id int) ([]models.Comment, error)

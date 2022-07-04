@@ -44,10 +44,6 @@
             </li>
 
             <li class="nav-item dropdown">
-              <nav-drop-down :menuAttr="notificaitonDD" ></nav-drop-down>
-            </li>
-
-            <li class="nav-item dropdown">
               <account-drop-down :accountAttr="accountDD"></account-drop-down>
             </li>
           </ul>
@@ -69,24 +65,10 @@ export default {
   name: "TopBar",
   data() {
     return {
-      notificaitonDD: {
-        id: "notification-drop",
-        icon: "ri-notification-4-line",
-        title: "All Notifications",
-        elements: [
-          {
-            avatar: "https://png.pngtree.com/png-vector/20191103/ourlarge/pngtree-handsome-young-guy-avatar-cartoon-style-png-image_1947775.jpg",
-            authorId: 1,
-            author: "Test",
-            sub: "New message",
-            time: "28.03.12 12:23",
-          }
-        ],
-      },
       requestDD: {
         id: "follow-drop",
-        icon: "ri-group-line",
-        title: "Requests",
+        icon: "ri-notification-4-line",
+        title: "All Notifications",
       },
       accountDD: {
         id: "",

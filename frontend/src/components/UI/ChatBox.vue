@@ -19,7 +19,7 @@
       </header>
     </div>
 
-    <div class="chat-content scroller">
+    <div class="chat-content scroller" id="chat-scroll">
       <div v-for="(message, index) of chat.messages" :key="index" :class="message.author !== getId() ? 'chat-left' : 'other-user'" class="chat d-flex mb-2">
         <ChatMessage :message="message" :avatar="message.author !== getId() ? message.profilePicture : getAvatar()" />
       </div>
@@ -67,6 +67,29 @@ export default {
       inputMessage: "",
       emojiIndex: emojiIndex,
     };
+  },
+  watch: {
+    "chat.id": {
+      handler() {
+        this.$nextTick(function () {
+          const newScroll = document.getElementById("chat-scroll");
+          newScroll.scrollTop = newScroll.scrollHeight;
+        })
+      }
+    },
+
+    "chat.messages": {
+      handler() {
+        this.$nextTick(function () {
+          const newScroll = document.getElementById("chat-scroll");
+
+          if (newScroll.scrollHeight - newScroll.scrollTop - 200 < newScroll.clientHeight) {
+            newScroll.scrollTop = newScroll.scrollHeight;
+          }
+        })
+      },
+      deep: true
+    }
   },
   methods: {
     ...mapGetters({

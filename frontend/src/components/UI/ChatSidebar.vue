@@ -28,16 +28,6 @@ export default {
   components: {
     ChatOverview
   },
-  data: () => ({
-    chatOverviews: [
-      {
-        id: "1",
-        avatar: "https://templates.iqonic.design/socialv/bs5/html/dist/assets/images/user/07.jpg",
-        type: "group",
-        name: "Denni Karin",
-        lastMessageContent: "Test..."
-      }
-    ]
-  })
+  data: () => ({})
 }
 </script>
