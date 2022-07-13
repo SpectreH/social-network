@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <auth-base v-if="authenticated"></auth-base>
     <un-auth-base v-else></un-auth-base>
 
